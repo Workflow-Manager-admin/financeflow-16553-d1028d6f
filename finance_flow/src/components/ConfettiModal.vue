@@ -19,9 +19,7 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
 // PUBLIC_INTERFACE
-const props = defineProps<{
-  visible: boolean
-}>()
+defineProps<{ visible: boolean }>()
 
 const emit = defineEmits(['close'])
 
