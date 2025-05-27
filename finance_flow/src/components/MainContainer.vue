@@ -145,31 +145,38 @@
                 class="transaction-form-card-panel"
                 style="margin-bottom:1.2rem;"
               >
-                <!-- Modern card/panel look, clearly separated, futureproof: income vs. expense tabs/boxes -->
+                <!-- Modern card/panel look, clearly separated: split as two panels, one for expense and one for income -->
                 <div class="add-transaction-section-cards">
-                  <!-- Split: Expense and Income (future: toggle/tabs, now both visible) -->
+                  <!-- Expense panel -->
                   <div class="card transaction-add-card expense-add-card">
                     <div class="add-type-title">Add Expense</div>
                     <TransactionForm
-                      :editMode="!!editIndex"
-                      :modelValue="editIndex !== null && editIndex >= 0 ? transactions[editIndex] : { type: 'expense' }"
+                      :editMode="!!editIndex && transactions[editIndex]?.type === 'expense'"
+                      :modelValue="editIndex !== null && editIndex >= 0 && transactions[editIndex]?.type === 'expense'
+                        ? transactions[editIndex]
+                        : { type: 'expense' }"
                       @submit="onTransactionFormSubmit"
                       @cancel="closeTransactionForm"
-                      v-if="!editIndex || (editIndex !== null && transactions[editIndex]?.type === 'expense')"
+                      v-show="editIndex === null || (editIndex !== null && transactions[editIndex]?.type === 'expense')"
+                      key="expense-form"
                     />
                   </div>
+                  <!-- Income panel -->
                   <div class="card transaction-add-card income-add-card">
                     <div class="add-type-title">Add Income</div>
                     <TransactionForm
-                      :editMode="!!editIndex"
-                      :modelValue="editIndex !== null && editIndex >= 0 ? transactions[editIndex] : { type: 'income' }"
+                      :editMode="!!editIndex && transactions[editIndex]?.type === 'income'"
+                      :modelValue="editIndex !== null && editIndex >= 0 && transactions[editIndex]?.type === 'income'
+                        ? transactions[editIndex]
+                        : { type: 'income' }"
                       @submit="onTransactionFormSubmit"
                       @cancel="closeTransactionForm"
-                      v-if="!editIndex || (editIndex !== null && transactions[editIndex]?.type === 'income')"
+                      v-show="editIndex === null || (editIndex !== null && transactions[editIndex]?.type === 'income')"
+                      key="income-form"
                     />
                   </div>
                 </div>
-                <!-- For now, both forms are shown, but only one has content based on TransactionForm logic -->
+                <!-- Only the form matching the transaction type is editable when editing; both are shown when adding -->
               </div>
             </transition>
 
