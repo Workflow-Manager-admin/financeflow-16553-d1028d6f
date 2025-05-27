@@ -289,8 +289,8 @@ function cancelGoalEdit() {
 /**
  * Show in-app notifications for savings progress milestones (75%, 100%).
  */
-let notified75 = ref(false)
-let notified100 = ref(false)
+const notified75 = ref(false)
+const notified100 = ref(false)
 watch(goalProgress, (newPct) => {
   if (!savingsGoal.value) return
   if (newPct >= 100 && !notified100.value) {
