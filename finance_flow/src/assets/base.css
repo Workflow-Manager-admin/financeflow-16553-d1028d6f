@@ -45,8 +45,21 @@
     --color-border: var(--vt-c-divider-dark-2);
     --color-border-hover: var(--vt-c-divider-dark-1);
 
-    --color-heading: #f6f3fb;
-    --color-text: #dedcef;
+    /* Improved contrast for heading and main text */
+    --color-heading: #e5dbff; /* lighter purple for headings */
+    --color-text: #ecdefd;    /* very light purple for readable main text */
+
+    /* Accessible accent purples for UI/labels/buttons */
+    --color-accent: #a491fa;    /* for buttons and highlights */
+    --color-accent-strong: #c6b9f9; /* even lighter accent option */
+    --color-purple-label: #cab8f5;
+    --color-placeholder: #b5a6e8;
+    --color-input-bg: #211a35; /* elevated input background */
+    --color-card-bg: #18182c;
+    --color-progress-ring-primary: #b09bfe; /* for SVG progress ring */
+    --color-progress-ring-secondary: #775efc; /* used for less primary accent */
+    --color-goal-label: #bba8fd; /* for SVG 'Goal' word and similar small elements */
+    --color-card-boxshadow: 0 2px 16px 0 #1d095844;
   }
 }
 
