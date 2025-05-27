@@ -48,7 +48,7 @@ a,
 
 .goal-input.mini-input.big-placeholder::placeholder {
   font-size: 1.15em;
-  color: #b2a8e6;
+  color: var(--color-placeholder, #b2a8e6); /* use new semantic variable for purple placeholder */
   letter-spacing: 0.5px;
   font-weight: 500;
   opacity: 1;
@@ -62,10 +62,12 @@ a,
   font-weight: 700;
 }
 
+/* Dark mode input field UX - better backgrounds, lighter borders, and color use */
 .financeflow-main.dark .goal-input.mini-input.big-placeholder {
-  background: #29205a;
-  color: #fff;
-  border: 1.1px solid #6C3EFF;
+  background: var(--color-input-bg, #211a35); /* lighter for darkness */
+  color: var(--color-text, #ecdefd);
+  border: 1.3px solid var(--color-accent, #a491fa);
+  box-shadow: 0 1px 7px 0 #6c37ff11;
 }
 
 /* --- retain remaining existing global styles below --- */
