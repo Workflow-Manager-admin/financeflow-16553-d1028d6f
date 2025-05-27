@@ -831,4 +831,32 @@ onMounted(() => {
   }
 }
 
+/* -- Robust grid for layout root (sidebar + main content) -- */
+.main-grid {
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 2.2rem;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding-bottom: 2.5rem;
+}
+
+/* On smaller screens: stack vertically, sidebar above main */
+@media (max-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 1.5rem;
+    max-width: 99vw;
+    min-height: unset;
+    padding: 0 2vw;
+  }
+  .side-panel {
+    margin-bottom: 0.5rem;
+  }
+}
 </style>
