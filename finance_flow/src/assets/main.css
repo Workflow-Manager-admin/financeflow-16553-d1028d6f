@@ -22,6 +22,7 @@ a,
 }
 
 @media (min-width: 1024px) {
+  /* Removed body flex/grid overrides which break centering and overlay main app!
   body {
     display: flex;
     place-items: center;
@@ -32,6 +33,7 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
+  */
 }
 
 /* --- Input enhancements for savings goal mini sidebar field --- */
