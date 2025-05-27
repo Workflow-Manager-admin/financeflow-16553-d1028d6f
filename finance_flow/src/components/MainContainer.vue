@@ -259,6 +259,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import TransactionForm from './TransactionForm.vue'
 import PieChart from './PieChart.vue'
 import LineChart from './LineChart.vue'
+import ConfettiModal from './ConfettiModal.vue'
 import type { Transaction, TransactionCategory } from './transaction-model'
 import { defaultCategories } from './transaction-model'
 
