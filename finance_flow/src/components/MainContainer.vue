@@ -1162,4 +1162,79 @@ onMounted(() => {
   opacity: 0;
   transform: translateY(-26px) scale(0.98);
 }
+/* --- Transaction Add Cards: Card/Panel Modern Separation --- */
+.transaction-form-card-panel {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: transparent;
+  border-radius: 18px;
+  box-shadow: none;
+  margin-bottom: 1.2rem;
+  padding: 0;
+}
+
+.add-transaction-section-cards {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.transaction-add-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px 0 rgba(60,48,106,0.08);
+  padding: 1.1rem 1rem 1.4rem 1rem;
+  min-width: 225px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+  border: 1.3px solid #eceafb;
+  transition: box-shadow .21s, border .18s, background .3s;
+}
+
+.financeflow-main.dark .transaction-add-card {
+  background: #201a37;
+  border-color: #29205a;
+}
+.add-type-title {
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.7em;
+  text-align: left;
+  letter-spacing: 0.01em;
+}
+
+.expense-add-card .add-type-title {
+  color: var(--expense);
+}
+.income-add-card .add-type-title {
+  color: var(--income);
+}
+
+/* Card hover/focus effect */
+.transaction-add-card:focus-within,
+.transaction-add-card:hover {
+  box-shadow: 0 4px 24px 0 rgba(108,62,255,0.10);
+  border-color: var(--primary);
+}
+
+/* Stacking on mobile */
+@media (max-width: 900px) {
+  .add-transaction-section-cards {
+    flex-direction: column;
+    gap: 1.1rem;
+    max-width: 100vw;
+  }
+  .transaction-add-card {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+}
 </style>
