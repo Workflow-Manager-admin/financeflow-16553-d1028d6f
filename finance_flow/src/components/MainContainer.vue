@@ -463,11 +463,6 @@ const goalProgress = computed(() => {
   return pct
 })
 const circumference = 2 * Math.PI * 38
-const progressStrokeOffset = computed(() => {
-  let percent = goalProgress.value
-  if (percent > 100) percent = 100
-  return circumference - (circumference * percent / 100)
-})
 const isGoalMet = computed(() => savingsGoal.value > 0 && goalAccumulated.value >= savingsGoal.value)
 
 /**
