@@ -97,7 +97,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 
 // PUBLIC_INTERFACE
