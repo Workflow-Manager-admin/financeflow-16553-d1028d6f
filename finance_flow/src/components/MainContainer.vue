@@ -120,7 +120,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from 'vue'
+import TransactionForm from './TransactionForm.vue'
+import type { Transaction, TransactionCategory } from './transaction-model'
+import { defaultCategories } from './transaction-model'
 
 interface Notification {
   id: number;
@@ -131,28 +134,162 @@ interface Notification {
 // PUBLIC_INTERFACE
 const isDarkMode = ref(false)
 const showOnboarding = ref(false)
-const notifications = ref<Notification[]>([
-  // Example notifications for UI structure
-  // { id: 1, type: "success", message: "You've reached 75% of your savings goal!" }
-])
+const notifications = ref<Notification[]>([])
 
-// PUBLIC_INTERFACE
 function toggleTheme() {
   isDarkMode.value = !isDarkMode.value
   document.documentElement.classList.toggle('dark', isDarkMode.value)
 }
 
-// PUBLIC_INTERFACE
 function closeOnboarding() {
   showOnboarding.value = false
   localStorage.setItem('financeflow-onboarded', 'yes')
 }
 
+// Transactions
+const localStorageKey = 'financeflow-transactions'
+
+// default for demonstration:
+const demoTransactions: Transaction[] = [
+  {
+    id: "t1",
+    category: "Groceries",
+    type: "expense",
+    amount: 36.20,
+    date: "2024-05-23",
+    description: "Bought fruits"
+  },
+  {
+    id: "t2",
+    category: "Salary",
+    type: "income",
+    amount: 2500,
+    date: "2024-05-20",
+    description: "Monthly pay"
+  }
+]
+
+const transactions = ref<Transaction[]>([])
+
+/**
+ * PUBLIC_INTERFACE
+ * Load transactions from local storage, fallback to demo data if empty.
+ */
+function loadTransactions() {
+  try {
+    const raw = localStorage.getItem(localStorageKey)
+    if (raw) {
+      transactions.value = JSON.parse(raw)
+    } else {
+      transactions.value = [...demoTransactions]
+      saveTransactions()
+    }
+  } catch (e) {
+    transactions.value = [...demoTransactions]
+  }
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Save transactions to local storage for persistence.
+ */
+function saveTransactions() {
+  localStorage.setItem(localStorageKey, JSON.stringify(transactions.value))
+}
+
+/**
+ * Categories list for dropdown.
+ */
+const categories = ref<TransactionCategory[]>([...defaultCategories])
+
+// Transaction Form State
+const transactionFormOpen = ref(false)
+const editIndex = ref<number | null>(null)
+const selectedRow = ref<number|null>(null)
+
+// Transaction filter
+const filter = ref({
+  startDate: '',
+  endDate: '',
+  category: ''
+})
+
+/**
+ * PUBLIC_INTERFACE
+ * Computed filtered transactions based on filter form.
+ */
+const filteredTransactions = computed(() => {
+  return transactions.value.filter(txn => {
+    let ok = true
+    if (filter.value.category)
+      ok = ok && txn.category === filter.value.category
+    if (filter.value.startDate)
+      ok = ok && txn.date >= filter.value.startDate
+    if (filter.value.endDate)
+      ok = ok && txn.date <= filter.value.endDate
+    return ok
+  }).sort((a, b) => b.date.localeCompare(a.date))
+})
+
+/**
+ * PUBLIC_INTERFACE
+ * Opens add/edit transaction form.
+ */
+function toggleTransactionForm() {
+  // If opening from edit, 'close' means reset:
+  if (transactionFormOpen.value) {
+    closeTransactionForm()
+  } else {
+    transactionFormOpen.value = true
+    editIndex.value = null
+  }
+}
+function openEditForm(index: number) {
+  editIndex.value = index
+  transactionFormOpen.value = true
+}
+function closeTransactionForm() {
+  transactionFormOpen.value = false
+  editIndex.value = null
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Handles submission from add or edit.
+ */
+function onTransactionFormSubmit(txn: Transaction) {
+  if (editIndex.value !== null && editIndex.value >= 0) {
+    // Edit mode
+    transactions.value[editIndex.value] = { ...txn }
+    notifications.value.push({ id: Date.now(), type: "success", message: "Transaction updated." })
+  } else {
+    // Add mode
+    const newid = 't' + Date.now() + '-' + Math.floor(Math.random()*10000)
+    transactions.value.unshift({
+      ...txn,
+      id: newid
+    })
+    notifications.value.push({ id: Date.now(), type: "success", message: "Transaction added." })
+  }
+  saveTransactions()
+  closeTransactionForm()
+}
+
+// Remove notification after delay
+watch(notifications, (notifList) => {
+  if (!notifList.length) return
+  setTimeout(() => {
+    notifications.value.shift()
+  }, 2100)
+})
+
 onMounted(() => {
   if (!localStorage.getItem('financeflow-onboarded')) {
     showOnboarding.value = true
   }
+  loadTransactions()
 })
+
 </script>
 
 <style scoped>
@@ -358,6 +495,22 @@ onMounted(() => {
   opacity: 0.74;
   font-style: italic;
   color: #6b6590;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  color: #8672d8;
+  font-size: 1.08em;
+  margin-left: 0.5em;
+  cursor: pointer;
+  transition: color 0.13s;
+  padding: 0 6px;
+  border-radius: 6px;
+}
+.edit-btn:hover {
+  color: #6C3EFF;
+  background: #eceffc;
 }
 
 .amount.income {
