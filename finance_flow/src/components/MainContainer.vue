@@ -1,5 +1,8 @@
 <template>
   <div :class="['financeflow-main', { dark: isDarkMode }]">
+    <!-- Confetti Celebrate Modal -->
+    <ConfettiModal :visible="showConfetti" @close="closeConfettiModal" />
+
     <!-- Onboarding Modal/Banner -->
     <transition name="fade">
       <div v-if="showOnboarding" class="onboarding-banner">
