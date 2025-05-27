@@ -100,10 +100,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
+interface Notification {
+  id: number;
+  type: "success" | "error" | "info";
+  message: string;
+}
+
 // PUBLIC_INTERFACE
 const isDarkMode = ref(false)
 const showOnboarding = ref(false)
-const notifications = ref([
+const notifications = ref<Notification[]>([
   // Example notifications for UI structure
   // { id: 1, type: "success", message: "You've reached 75% of your savings goal!" }
 ])
