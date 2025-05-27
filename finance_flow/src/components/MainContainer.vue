@@ -21,11 +21,9 @@
       <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" fill="#6C3EFF"/></svg>
     </button>
 
-    <!-- Main Responsive Layout Grid -->
     <div class="main-grid">
-      <!-- Sidebar or Progress Ring (Left on desktop, top on mobile) -->
+      <!-- Sidebar: Savings Goal and Progress Ring -->
       <aside class="side-panel">
-        <!-- Savings Goal Tracker & Progress Ring -->
         <div class="savings-goal-card card">
           <div class="ring-placeholder" style="margin-bottom: 0.7rem;">
             <svg width="90" height="90">
@@ -41,7 +39,7 @@
                 cx="45"
                 cy="45"
                 r="38"
-                :stroke="isGoalMet ? '#22bb66' :  (goalProgress >= 75 ? '#fdc143' : '#6C3EFF')"
+                :stroke="isGoalMet ? '#22bb66' : (goalProgress >= 75 ? '#fdc143' : '#6C3EFF')"
                 stroke-width="9"
                 fill="none"
                 :stroke-dasharray="circumference"
@@ -130,7 +128,6 @@
             <div class="section-title">Transactions</div>
             <div class="transaction-controls">
               <button class="add-btn" @click="toggleTransactionForm">{{ transactionFormOpen ? 'Close' : '+ Add' }}</button>
-              <!-- Future filters section -->
               <div class="filters">
                 <input type="date" class="filter-input" v-model="filter.startDate"/>
                 <input type="date" class="filter-input" v-model="filter.endDate"/>
@@ -169,8 +166,6 @@
                   </span>
                   <span class="date">{{ txn.date }}</span>
                   <button class="edit-btn" title="Edit" @click="openEditForm(idx)">✎</button>
-                  <!-- Placeholder future: delete button -->
-                  <!-- <button class="delete-btn" title="Delete" @click="">🗑</button> -->
                 </div>
               </transition-group>
               <div v-if="filteredTransactions.length === 0" class="transaction-row placeholder">
@@ -218,118 +213,7 @@ interface Notification {
   message: string;
 }
 
-// SAVINGS GOAL STATE & LOGIC ///
-
-/**
- * PUBLIC_INTERFACE
- * State for the savings goal.
- */
-const savingsGoal = ref<number>(0)
-const goalInput = ref<number | null>(null)
-const editingGoal = ref(false)
-
-const goalAccumulated = computed(() => {
-  // Sum all "income" minus all "expense"
-  let balance = 0
-  transactions?.value?.forEach(t => {
-    if (t.type === 'income') balance += t.amount
-    else if (t.type === 'expense') balance -= t.amount
-  })
-  // Ensure "already saved" value at least zero
-  return Math.max(0, balance)
-})
-
-const accLeftText = computed(() => {
-  if (!savingsGoal.value) return ""
-  if (goalAccumulated.value >= savingsGoal.value) return "Goal Met!"
-  return `$${(savingsGoal.value - goalAccumulated.value).toLocaleString(undefined, {minimumFractionDigits: 2})} left`
-})
-
-/*
- * PUBLIC_INTERFACE
- * Ring progress (0...100) for display
- */
-const goalProgress = computed(() => {
-  if (!savingsGoal.value) return 0
-  let pct = (goalAccumulated.value / savingsGoal.value) * 100
-  pct = Math.max(0, Math.min(Math.round(pct), 100)) // Clamp to 0–100, rounded
-  return pct
-})
-const circumference = 2 * Math.PI * 38
-const progressStrokeOffset = computed(() => {
-  // If no goal or goal is exceeded, set offset accordingly
-  let percent = goalProgress.value
-  if (percent > 100) percent = 100
-  return circumference - (circumference * percent / 100)
-})
-const isGoalMet = computed(() => savingsGoal.value > 0 && goalAccumulated.value >= savingsGoal.value)
-
-/**
- * PUBLIC_INTERFACE
- * Set or update savings goal and persist in LocalStorage.
- */
-function setSavingsGoal() {
-  if (goalInput.value && goalInput.value > 0) {
-    savingsGoal.value = Math.round(goalInput.value * 100) / 100
-    localStorage.setItem('financeflow-savings-goal', savingsGoal.value.toString())
-    editingGoal.value = false
-    goalInput.value = null
-    notifications.value.push({
-      id: Date.now(),
-      type: "success",
-      message: "Savings goal set!"
-    })
-  }
-}
-function cancelGoalEdit() {
-  editingGoal.value = false
-  goalInput.value = savingsGoal.value
-}
-
-/**
- * Show in-app notifications for savings progress milestones (75%, 100%).
- */
-const notified75 = ref(false)
-const notified100 = ref(false)
-watch(goalProgress, (newPct) => {
-  if (!savingsGoal.value) return
-  if (newPct >= 100 && !notified100.value) {
-    notifications.value.push({
-      id: Date.now(),
-      type: 'success',
-      message: "🎉 Congrats, you've reached your savings goal!"
-    })
-    notified100.value = true
-  } else if (newPct >= 75 && !notified75.value) {
-    notifications.value.push({
-      id: Date.now(),
-      type: 'info',
-      message: "Almost there! You've saved 75% of your goal."
-    })
-    notified75.value = true
-  }
-}, { immediate: true })
-
-// Reset notification triggers if changing goal or going below milestones
-watch([savingsGoal, goalProgress], ([goal, pct]) => {
-  if (!goal) {
-    notified100.value = false
-    notified75.value = false
-  } else {
-    if (pct < 75) notified75.value = false
-    if (pct < 100) notified100.value = false
-  }
-})
-
-onMounted(() => {
-  // Load savings goal from local storage
-  const storedGoal = localStorage.getItem('financeflow-savings-goal')
-  if (storedGoal && !isNaN(Number(storedGoal))) {
-    savingsGoal.value = Number(storedGoal)
-  }
-  goalInput.value = savingsGoal.value || null
-})
-
+// THEME & ONBOARDING STATE
 // PUBLIC_INTERFACE
 const isDarkMode = ref(false)
 const showOnboarding = ref(false)
@@ -441,17 +325,14 @@ const expenseCategorySummary = computed(() => {
  * Computed: summarized trend for line chart (monthly or daily, income/expense).
  */
 const trendLabels = computed(() => {
-  // Use up to 8 most recent distinct dates for line (ISO string, sorted).
   const allDates = transactions.value
     .map(txn => txn.date)
     .filter((v, i, a) => a.indexOf(v) === i)
     .sort()
-  // If many, take only last 8:
   return allDates.slice(-8)
 })
 
 const trendSeries = computed(() => {
-  // 2 lines: Income and Expense
   const labels = trendLabels.value
   const incomeSeries: number[] = []
   const expenseSeries: number[] = []
@@ -493,7 +374,6 @@ const filteredTransactions = computed(() => {
  * Opens add/edit transaction form.
  */
 function toggleTransactionForm() {
-  // If opening from edit, 'close' means reset:
   if (transactionFormOpen.value) {
     closeTransactionForm()
   } else {
@@ -516,11 +396,9 @@ function closeTransactionForm() {
  */
 function onTransactionFormSubmit(txn: Transaction) {
   if (editIndex.value !== null && editIndex.value >= 0) {
-    // Edit mode
     transactions.value[editIndex.value] = { ...txn }
     notifications.value.push({ id: Date.now(), type: "success", message: "Transaction updated." })
   } else {
-    // Add mode
     const newid = 't' + Date.now() + '-' + Math.floor(Math.random()*10000)
     transactions.value.unshift({
       ...txn,
@@ -540,13 +418,117 @@ watch(notifications, (notifList) => {
   }, 2100)
 })
 
+// ---- SAVINGS GOAL FEATURE START ----
+
+/**
+ * PUBLIC_INTERFACE
+ * State for the savings goal.
+ */
+const savingsGoal = ref<number>(0)
+const goalInput = ref<number | null>(null)
+const editingGoal = ref(false)
+
+const goalAccumulated = computed(() => {
+  // Sum all "income" minus all "expense"
+  let balance = 0
+  transactions?.value?.forEach(t => {
+    if (t.type === 'income') balance += t.amount
+    else if (t.type === 'expense') balance -= t.amount
+  })
+  return Math.max(0, balance)
+})
+
+const accLeftText = computed(() => {
+  if (!savingsGoal.value) return ""
+  if (goalAccumulated.value >= savingsGoal.value) return "Goal Met!"
+  return `$${(savingsGoal.value - goalAccumulated.value).toLocaleString(undefined, {minimumFractionDigits: 2})} left`
+})
+
+const goalProgress = computed(() => {
+  if (!savingsGoal.value) return 0
+  let pct = (goalAccumulated.value / savingsGoal.value) * 100
+  pct = Math.max(0, Math.min(Math.round(pct), 100))
+  return pct
+})
+const circumference = 2 * Math.PI * 38
+const progressStrokeOffset = computed(() => {
+  let percent = goalProgress.value
+  if (percent > 100) percent = 100
+  return circumference - (circumference * percent / 100)
+})
+const isGoalMet = computed(() => savingsGoal.value > 0 && goalAccumulated.value >= savingsGoal.value)
+
+/**
+ * PUBLIC_INTERFACE
+ * Set or update savings goal and persist in LocalStorage.
+ */
+function setSavingsGoal() {
+  if (goalInput.value && goalInput.value > 0) {
+    savingsGoal.value = Math.round(goalInput.value * 100) / 100
+    localStorage.setItem('financeflow-savings-goal', savingsGoal.value.toString())
+    editingGoal.value = false
+    goalInput.value = null
+    notifications.value.push({
+      id: Date.now(),
+      type: "success",
+      message: "Savings goal set!"
+    })
+  }
+}
+function cancelGoalEdit() {
+  editingGoal.value = false
+  goalInput.value = savingsGoal.value
+}
+
+/**
+ * Show in-app notifications for savings progress milestones (75%, 100%).
+ */
+const notified75 = ref(false)
+const notified100 = ref(false)
+watch(goalProgress, (newPct) => {
+  if (!savingsGoal.value) return
+  if (newPct >= 100 && !notified100.value) {
+    notifications.value.push({
+      id: Date.now(),
+      type: 'success',
+      message: "🎉 Congrats, you've reached your savings goal!"
+    })
+    notified100.value = true
+  } else if (newPct >= 75 && !notified75.value) {
+    notifications.value.push({
+      id: Date.now(),
+      type: 'info',
+      message: "Almost there! You've saved 75% of your goal."
+    })
+    notified75.value = true
+  }
+}, { immediate: true })
+
+// Reset notification triggers if changing goal or going below milestones
+watch([savingsGoal, goalProgress], ([goal, pct]) => {
+  if (!goal) {
+    notified100.value = false
+    notified75.value = false
+  } else {
+    if (pct < 75) notified75.value = false
+    if (pct < 100) notified100.value = false
+  }
+})
+
 onMounted(() => {
   if (!localStorage.getItem('financeflow-onboarded')) {
     showOnboarding.value = true
   }
   loadTransactions()
+  // Load savings goal from local storage
+  const storedGoal = localStorage.getItem('financeflow-savings-goal')
+  if (storedGoal && !isNaN(Number(storedGoal))) {
+    savingsGoal.value = Number(storedGoal)
+  }
+  goalInput.value = savingsGoal.value || null
 })
 
+// ---- SAVINGS GOAL FEATURE END ----
 </script>
 
 <style scoped>
@@ -565,7 +547,6 @@ onMounted(() => {
   transition: background 0.4s;
 }
 
-/* Dark mode */
 .financeflow-main.dark {
   --main-bg: #222236;
   --card-bg: #272748;
@@ -593,8 +574,6 @@ onMounted(() => {
     justify-content: space-evenly;
   }
 }
-
-/* Sidebar/Panel */
 .side-panel {
   display: flex;
   flex-direction: column;
@@ -603,7 +582,6 @@ onMounted(() => {
   min-width: 220px;
   max-width: 260px;
 }
-
 .savings-goal-card {
   background: var(--card-bg);
   border-radius: 18px;
@@ -614,14 +592,12 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
 }
-
 .ring-placeholder {
   position: relative;
   width: 90px;
   height: 90px;
   margin-bottom: 0.5rem;
 }
-
 .ring-value {
   position: absolute;
   top: 19px;
@@ -633,20 +609,17 @@ onMounted(() => {
   align-items: center;
   pointer-events: none;
 }
-
 .goal-value {
   font-size: 1.8rem;
   font-weight: 600;
   color: var(--primary);
 }
-
 .goal-label {
   font-size: 0.9rem;
   font-weight: 400;
   color: #6a6a8e;
   opacity: 0.92;
 }
-
 .goal-desc {
   margin-top: 0.2rem;
   font-size: 1.08rem;
@@ -655,11 +628,68 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* Top Add/Filter row */
+/* Goal input/add/edit styles */
+.goal-form {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+}
+.goal-input {
+  border-radius: 9px;
+  border: 1.2px solid #eceafb;
+  padding: 0.38em 0.82em;
+  font-size: 1.04em;
+  background: #f5f6fa;
+  color: #36228f;
+  outline: none;
+  transition: border 0.2s;
+}
+.financeflow-main.dark .goal-input {
+  background: #23223c;
+  border: 1px solid #50498e;
+  color: #fafaff;
+}
+.goal-input:focus {
+  border: 1.5px solid var(--primary);
+}
+.goal-set-btn, .goal-cancel-btn {
+  border-radius: 13px;
+  padding: 0.26em 1.4em;
+  font-size: 1em;
+  font-weight: 600;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  margin-left: 0.2em;
+  transition: background 0.18s;
+}
+.goal-set-btn:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  background: #c6baf6;
+}
+.goal-cancel-btn {
+  background: #fff;
+  color: #6C3EFF;
+  border: 1px solid #6C3EFF;
+  margin-left: 0.34em;
+}
+.goal-cancel-btn:hover {
+  background: #f9f6ff;
+}
+.goal-set-btn:hover {
+  background: #5439ce;
+}
+.side-spacer {
+  flex: 1;
+}
+
+/* Transaction/Visualization/Notification Styles retain as previous */
+
 .transact-filter-row {
   width: 100%;
 }
-
 .transaction-manager {
   background: var(--card-bg);
   border-radius: 16px;
@@ -667,15 +697,12 @@ onMounted(() => {
   box-shadow: var(--shadow);
   margin-bottom: 1.2rem;
 }
-
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1.1rem;
   color: var(--primary);
 }
-
-/* Add button and filter controls */
 .transaction-controls {
   display: flex;
   gap: 1.2rem;
@@ -683,7 +710,6 @@ onMounted(() => {
   margin-bottom: 1.3rem;
   flex-wrap: wrap;
 }
-
 .add-btn {
   background: var(--primary);
   color: #fff;
@@ -696,11 +722,9 @@ onMounted(() => {
   box-shadow: 0 1px 4px rgba(108, 62, 255, 0.12);
   transition: background 0.2s;
 }
-
 .add-btn:hover {
   background: var(--accent);
 }
-
 .filters {
   display: flex;
   gap: 0.7rem;
@@ -716,26 +740,21 @@ onMounted(() => {
   font-size: 1rem;
   transition: border 0.2s;
 }
-
 .financeflow-main.dark .filter-input {
   background: #221b3a;
   color: #fff;
   border-color: #3f3a63;
 }
-
 .filter-input:focus {
   outline: none;
   border-color: var(--primary);
 }
-
-/* Transactions List */
 .transaction-list {
   margin-top: 0.1rem;
   min-height: 45px;
   border-top: 1px solid #eee;
   padding-top: 0.7rem;
 }
-
 .transaction-row {
   display: grid;
   grid-template-columns: 1fr 2.7fr 1.1fr 1.1fr;
@@ -747,13 +766,11 @@ onMounted(() => {
   margin-bottom: 0.34em;
   min-height: 38px;
 }
-
 .transaction-row.placeholder {
   opacity: 0.74;
   font-style: italic;
   color: #6b6590;
 }
-
 .edit-btn {
   background: none;
   border: none;
@@ -769,18 +786,14 @@ onMounted(() => {
   color: #6C3EFF;
   background: #eceffc;
 }
-
 .amount.income {
   color: var(--income);
   font-weight: 600;
 }
-
 .amount.expense {
   color: var(--expense);
   font-weight: 600;
 }
-
-/* Visualizations Row */
 .visualizations-row {
   display: flex;
   gap: 1.45rem;
@@ -871,7 +884,6 @@ onMounted(() => {
 .notification.error {
   border-left: 5px solid var(--expense);
 }
-
 .financeflow-main.dark .notification {
   background: #302c47;
   color: #eee;
@@ -903,9 +915,6 @@ onMounted(() => {
 .card {
   box-shadow: var(--shadow);
 }
-.side-spacer {
-  flex: 1;
-}
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.35s cubic-bezier(.9,.4,.44,1.2);
 }
@@ -919,55 +928,4 @@ onMounted(() => {
   opacity: 0;
   transform: translateY(-26px) scale(0.98);
 }
-.goal-form {
-  display: flex;
-  align-items: center;
-  gap: 0.45em;
-}
-.goal-input {
-  border-radius: 9px;
-  border: 1.2px solid #eceafb;
-  padding: 0.38em 0.82em;
-  font-size: 1.04em;
-  background: #f5f6fa;
-  color: #36228f;
-  outline: none;
-  transition: border 0.2s;
-}
-.financeflow-main.dark .goal-input {
-  background: #23223c;
-  border: 1px solid #50498e;
-  color: #fafaff;
-}
-.goal-input:focus {
-  border: 1.5px solid var(--primary);
-}
-.goal-set-btn, .goal-cancel-btn {
-  border-radius: 13px;
-  padding: 0.26em 1.4em;
-  font-size: 1em;
-  font-weight: 600;
-  border: none;
-  background: var(--primary);
-  color: #fff;
-  cursor: pointer;
-  margin-left: 0.2em;
-  transition: background 0.18s;
-}
-.goal-set-btn:disabled {
-  opacity: 0.6;
-  pointer-events: none;
-  background: #c6baf6;
-}
-.goal-cancel-btn {
-  background: #fff;
-  color: #6C3EFF;
-  border: 1px solid #6C3EFF;
-  margin-left: 0.34em;
-}
-.goal-cancel-btn:hover {
-  background: #f9f6ff;
-}
-.goal-set-btn:hover {
-  background: #5439ce;
-}
+</style>
