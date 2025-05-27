@@ -420,7 +420,7 @@ function onTransactionFormSubmit(txn: Transaction) {
  */
 watch(
   notifications,
-  (notifList, _old) => {
+  (notifList) => {
     if (!notifList.length) return
     // Only start timeout for first notification (if just added)
     if (notifList.length === 1) {
