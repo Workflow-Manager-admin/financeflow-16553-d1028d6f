@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="submitForm" class="transaction-form">
-    <!-- Only show type selector if lockedType is NOT supplied -->
+    <!-- Type selector only appears if lockedType is NOT supplied -->
     <div class="form-row" v-if="!lockedType">
       <label>Type</label>
       <select v-model="form.type" required>
@@ -8,7 +8,7 @@
         <option value="income">Income</option>
       </select>
     </div>
-    <!-- If lockedType, don't show selector, but type is internally set/fixed -->
+    <!-- If lockedType is supplied, type is locked and no selector rendered -->
     <div class="form-row">
       <label>Category</label>
       <select v-model="form.category" required>
