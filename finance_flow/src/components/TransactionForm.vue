@@ -116,6 +116,12 @@ function submitForm() {
   color: #6c3eff;
   font-weight: 500;
 }
+
+/* Dark mode: brighter label color */
+.financeflow-main.dark .form-row label {
+  color: var(--color-accent, #a491fa);
+}
+
 .form-row input,
 .form-row select {
   padding: 0.37em 0.75em;
@@ -124,6 +130,16 @@ function submitForm() {
   border-radius: 6px;
   background: #fafaff;
 }
+
+/* Dark input field restyling */
+.financeflow-main.dark .form-row input,
+.financeflow-main.dark .form-row select {
+  background: var(--color-input-bg, #211a35);
+  color: var(--color-text, #ecdefd);
+  border: 1.15px solid var(--color-accent, #a491fa);
+  box-shadow: 0 1px 8px 0 #6c37ff12;
+}
+
 .form-actions {
   display: flex;
   gap: 1em;
@@ -139,6 +155,12 @@ function submitForm() {
   font-weight: 600;
   cursor: pointer;
 }
+
+.financeflow-main.dark .form-submit {
+  background: var(--color-accent, #a491fa);
+  color: var(--color-background, #121216);
+}
+
 .form-cancel {
   background: none;
   border: 1.2px solid #6c3eff;
@@ -149,10 +171,24 @@ function submitForm() {
   font-size: 1.02rem;
   cursor: pointer;
 }
+
+.financeflow-main.dark .form-cancel {
+  border-color: var(--color-accent, #a491fa);
+  color: var(--color-accent, #a491fa);
+}
+
 .form-submit:hover {
   background: #5b31db;
 }
 .form-cancel:hover {
   background: #f7f4ff;
+}
+
+/* Dark mode hover: accent hover shades */
+.financeflow-main.dark .form-submit:hover {
+  background: var(--color-accent-strong, #c6b9f9);
+}
+.financeflow-main.dark .form-cancel:hover {
+  background: #29244a;
 }
 </style>
