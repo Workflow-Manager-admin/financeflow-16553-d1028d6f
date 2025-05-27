@@ -559,8 +559,14 @@ onMounted(() => {
 }
 
 .financeflow-main.dark {
-  --main-bg: #222236;
-  --card-bg: #272748;
+  /* True dark background, use nearly black for highest contrast */
+  --main-bg: #121216;
+  --card-bg: #181824;
+  --primary: #6C3EFF;
+  --accent: #6C3EFF;
+  --secondary: #23223c;
+  --income: #22bb66;
+  --expense: #e94242;
   color: #fafaff;
   background: var(--main-bg);
 }
