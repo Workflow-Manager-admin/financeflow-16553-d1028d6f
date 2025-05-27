@@ -10,8 +10,13 @@
 
     <!-- Notifications -->
     <transition-group name="notif-fade" tag="div" class="notifications">
-      <div v-for="notif in notifications" :key="notif.id" :class="['notification', notif.type]">
-        {{ notif.message }}
+      <!-- Only show the first notification in the array, if any -->
+      <div
+        v-if="notifications.length"
+        :key="notifications[0].id"
+        :class="['notification', notifications[0].type]"
+      >
+        {{ notifications[0].message }}
       </div>
     </transition-group>
 
@@ -410,13 +415,24 @@ function onTransactionFormSubmit(txn: Transaction) {
   closeTransactionForm()
 }
 
-// Remove notification after delay
-watch(notifications, (notifList) => {
-  if (!notifList.length) return
-  setTimeout(() => {
-    notifications.value.shift()
-  }, 2100)
-})
+/**
+ * Notifications are shown one at a time. Each is auto-dismissed after 3 seconds.
+ */
+watch(
+  notifications,
+  (notifList, _old) => {
+    if (!notifList.length) return
+    // Only start timeout for first notification (if just added)
+    if (notifList.length === 1) {
+      setTimeout(() => {
+        // Remove the notification only if it is still the first in the list
+        if (notifications.value.length && notifications.value[0].id === notifList[0].id) {
+          notifications.value.shift()
+        }
+      }, 3000)
+    }
+  }
+)
 
 // ---- SAVINGS GOAL FEATURE START ----
 
