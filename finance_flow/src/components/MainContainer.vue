@@ -462,7 +462,6 @@ const goalProgress = computed(() => {
   pct = Math.max(0, Math.min(Math.round(pct), 100))
   return pct
 })
-const circumference = 2 * Math.PI * 38
 const isGoalMet = computed(() => savingsGoal.value > 0 && goalAccumulated.value >= savingsGoal.value)
 
 /**
