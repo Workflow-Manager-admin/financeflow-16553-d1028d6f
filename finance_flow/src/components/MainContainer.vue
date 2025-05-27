@@ -140,13 +140,36 @@
             </div>
 
             <transition name="fade">
-              <div v-if="transactionFormOpen" style="margin-bottom:1.2rem;">
-                <TransactionForm
-                  :editMode="!!editIndex"
-                  :modelValue="editIndex !== null && editIndex >= 0 ? transactions[editIndex] : null"
-                  @submit="onTransactionFormSubmit"
-                  @cancel="closeTransactionForm"
-                />
+              <div
+                v-if="transactionFormOpen"
+                class="transaction-form-card-panel"
+                style="margin-bottom:1.2rem;"
+              >
+                <!-- Modern card/panel look, clearly separated, futureproof: income vs. expense tabs/boxes -->
+                <div class="add-transaction-section-cards">
+                  <!-- Split: Expense and Income (future: toggle/tabs, now both visible) -->
+                  <div class="card transaction-add-card expense-add-card">
+                    <div class="add-type-title">Add Expense</div>
+                    <TransactionForm
+                      :editMode="!!editIndex"
+                      :modelValue="editIndex !== null && editIndex >= 0 ? transactions[editIndex] : { type: 'expense' }"
+                      @submit="onTransactionFormSubmit"
+                      @cancel="closeTransactionForm"
+                      v-if="!editIndex || (editIndex !== null && transactions[editIndex]?.type === 'expense')"
+                    />
+                  </div>
+                  <div class="card transaction-add-card income-add-card">
+                    <div class="add-type-title">Add Income</div>
+                    <TransactionForm
+                      :editMode="!!editIndex"
+                      :modelValue="editIndex !== null && editIndex >= 0 ? transactions[editIndex] : { type: 'income' }"
+                      @submit="onTransactionFormSubmit"
+                      @cancel="closeTransactionForm"
+                      v-if="!editIndex || (editIndex !== null && transactions[editIndex]?.type === 'income')"
+                    />
+                  </div>
+                </div>
+                <!-- For now, both forms are shown, but only one has content based on TransactionForm logic -->
               </div>
             </transition>
 
