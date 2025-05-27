@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import type { Transaction, TransactionType } from './transaction-model'
-import { defaultCategories, getCategoriesForType } from './transaction-model'
+import { getCategoriesForType } from './transaction-model'
 
 interface Props {
   modelValue?: Partial<Transaction>
