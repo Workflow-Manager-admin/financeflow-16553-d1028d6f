@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import type { Transaction, TransactionCategory, TransactionType } from './transaction-model'
+import type { Transaction } from './transaction-model'
 import { defaultCategories } from './transaction-model'
 
 interface Props {

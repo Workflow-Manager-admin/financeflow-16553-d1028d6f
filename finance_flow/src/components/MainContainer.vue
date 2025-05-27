@@ -184,7 +184,7 @@ function loadTransactions() {
       transactions.value = [...demoTransactions]
       saveTransactions()
     }
-  } catch (e) {
+  } catch {
     transactions.value = [...demoTransactions]
   }
 }
