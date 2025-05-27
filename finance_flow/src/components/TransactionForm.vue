@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import type { Transaction, TransactionType } from './transaction-model'
-import { defaultCategories } from './transaction-model'
+import { defaultCategories, getCategoriesForType } from './transaction-model'
 
 interface Props {
   modelValue?: Partial<Transaction>
@@ -51,7 +51,11 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['submit', 'cancel'])
 
-const categoriesToShow = computed(() => [...defaultCategories])
+// Returns categories for current form type: lockedType if present, else form.type
+const categoriesToShow = computed(() => {
+  const type: TransactionType = props.lockedType ?? form.value.type ?? 'expense'
+  return getCategoriesForType(type)
+})
 
 const emptyForm: Transaction = {
   id: '',
