@@ -33,3 +33,42 @@ a,
     padding: 0 2rem;
   }
 }
+
+/* --- Input enhancements for savings goal mini sidebar field --- */
+.goal-input.mini-input {
+  width: 90px;
+  font-size: 1.22em;
+  padding: 0.32em 0.85em;
+  border-radius: 8px;
+  margin-right: 0.12em;
+  text-align: center;
+  font-weight: 600;
+  /* Boost input's visual prominence for savings goal mini field */
+}
+
+.goal-input.mini-input.big-placeholder::placeholder {
+  font-size: 1.15em;
+  color: #b2a8e6;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  opacity: 1;
+  text-align: center;
+}
+
+.goal-input.mini-input.big-placeholder {
+  font-size: 1.37em;
+  text-align: center;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+}
+
+.financeflow-main.dark .goal-input.mini-input.big-placeholder {
+  background: #29205a;
+  color: #fff;
+  border: 1.1px solid #6C3EFF;
+}
+
+/* --- retain remaining existing global styles below --- */
+
+/* (All other main.css content remains unchanged) */
+/* ... */
