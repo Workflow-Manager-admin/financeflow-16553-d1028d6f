@@ -214,22 +214,50 @@ interface Notification {
   message: string;
 }
 
-// THEME & ONBOARDING STATE
-// PUBLIC_INTERFACE
+/** 
+ * PUBLIC_INTERFACE
+ * Theme & Onboarding State
+ */
 const isDarkMode = ref(false)
 const showOnboarding = ref(false)
 const notifications = ref<Notification[]>([])
 
+// PUBLIC_INTERFACE
 function toggleTheme() {
   isDarkMode.value = !isDarkMode.value
-  document.documentElement.classList.toggle('dark', isDarkMode.value)
-  // Update <body> background so dialogs/overlays and app chrome use main dark
-  if (isDarkMode.value) {
-    document.body.style.backgroundColor = '#121216'
-  } else {
-    document.body.style.backgroundColor = ''
-  }
+  setTheme(isDarkMode.value)
+  localStorage.setItem('financeflow-theme', isDarkMode.value ? 'dark' : 'light')
 }
+
+// PUBLIC_INTERFACE
+function setTheme(dark: boolean) {
+  document.documentElement.classList.toggle('dark', dark)
+  document.body.style.backgroundColor = dark ? '#121216' : ''
+}
+
+onMounted(() => {
+  // Theme: apply setting or system default
+  const themeLocal = localStorage.getItem('financeflow-theme')
+  if (themeLocal) {
+    isDarkMode.value = themeLocal === 'dark'
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    isDarkMode.value = true
+  }
+  setTheme(isDarkMode.value)
+
+  watch(isDarkMode, val => setTheme(val), { immediate: false })
+
+  if (!localStorage.getItem('financeflow-onboarded')) {
+    showOnboarding.value = true
+  }
+  loadTransactions()
+  // Load savings goal from local storage
+  const storedGoal = localStorage.getItem('financeflow-savings-goal')
+  if (storedGoal && !isNaN(Number(storedGoal))) {
+    savingsGoal.value = Number(storedGoal)
+  }
+  goalInput.value = savingsGoal.value || null
+})
 
 function closeOnboarding() {
   showOnboarding.value = false
