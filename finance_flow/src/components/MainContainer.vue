@@ -25,21 +25,100 @@
     <div class="main-grid">
       <!-- Sidebar or Progress Ring (Left on desktop, top on mobile) -->
       <aside class="side-panel">
-        <!-- Savings Goal Progress Ring Placeholder -->
+        <!-- Savings Goal Tracker & Progress Ring -->
         <div class="savings-goal-card card">
-          <div class="ring-placeholder">
+          <div class="ring-placeholder" style="margin-bottom: 0.7rem;">
             <svg width="90" height="90">
-              <circle cx="45" cy="45" r="38" stroke="#E0E0E0" stroke-width="9" fill="none"/>
-              <circle cx="45" cy="45" r="38" stroke="#6C3EFF" stroke-width="9" fill="none" stroke-dasharray="238" stroke-dashoffset="86"/>
+              <circle
+                cx="45"
+                cy="45"
+                r="38"
+                stroke="#E0E0E0"
+                stroke-width="9"
+                fill="none"
+              />
+              <circle
+                cx="45"
+                cy="45"
+                r="38"
+                :stroke="isGoalMet ? '#22bb66' :  (goalProgress >= 75 ? '#fdc143' : '#6C3EFF')"
+                stroke-width="9"
+                fill="none"
+                :stroke-dasharray="circumference"
+                :stroke-dashoffset="progressStrokeOffset"
+                style="transition: stroke-dashoffset 1s cubic-bezier(.66,.01,.68,1.05), stroke 0.7s;"
+                stroke-linecap="round"
+              />
             </svg>
             <div class="ring-value">
-              <div class="goal-value">75%</div>
+              <div class="goal-value">{{ goalProgress }}%</div>
               <div class="goal-label">Goal</div>
             </div>
           </div>
-          <div class="goal-desc">Your Savings Goal</div>
+          <div class="goal-desc">
+            <template v-if="savingsGoal > 0">
+              Save <span style="color:var(--primary);">${{ savingsGoal.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</span>
+              <span v-if="goalAccumulated > 0" style="font-size:0.96em;color:#7c73b3;">({{ accLeftText }})</span>
+            </template>
+            <template v-else>
+              Set your savings goal!
+            </template>
+          </div>
+          <form
+            @submit.prevent="setSavingsGoal"
+            class="goal-form"
+            v-if="!editingGoal && !savingsGoal"
+            style="margin-top:0.60rem;"
+          >
+            <input
+              v-model.number="goalInput"
+              type="number"
+              min="1"
+              step="0.01"
+              placeholder="Enter a goal (USD)"
+              class="goal-input"
+              style="width: 90px; margin-right: 0.35em;"
+              required
+            />
+            <button
+              class="goal-set-btn"
+              type="submit"
+              :disabled="!goalInput || goalInput <= 0"
+              aria-label="Set Goal"
+            >Set</button>
+          </form>
+          <template v-if="savingsGoal">
+            <button
+              style="margin:0.38rem .02em .02em .02em; font-size:0.95em; background:none; color:#8672d8; border:none; cursor:pointer"
+              @click="editingGoal = true"
+              title="Edit goal"
+              v-if="!editingGoal"
+            >✎ Edit goal</button>
+            <form
+              v-if="editingGoal"
+              class="goal-form"
+              @submit.prevent="setSavingsGoal"
+              style="margin-top:0.4em;"
+            >
+              <input
+                v-model.number="goalInput"
+                type="number"
+                min="1"
+                step="0.01"
+                placeholder="New goal (USD)"
+                class="goal-input"
+                style="width:85px;margin-right:0.32em;"
+                required
+              />
+              <button
+                type="submit"
+                class="goal-set-btn"
+                :disabled="!goalInput || goalInput <= 0"
+              >Save</button>
+              <button type="button" class="goal-cancel-btn" @click="cancelGoalEdit">Cancel</button>
+            </form>
+          </template>
         </div>
-        <!-- Theme toggle moved here for mobile -->
         <div class="side-spacer"></div>
       </aside>
 
