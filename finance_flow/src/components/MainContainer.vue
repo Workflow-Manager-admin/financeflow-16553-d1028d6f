@@ -602,14 +602,63 @@ watch(goalProgress, (newPct) => {
   }
 }, { immediate: true })
 
+/** 
+ * CONFETTI MODAL STATE & SINGLE-TRIGGER LOGIC
+ */
+const showConfetti = ref(false)
+// Only show confetti once per 100% per goal value (persist marker in localStorage)
+const confettiTriggerId = ref('') // this will be a string `${goal}_${YYYYMMDD}`
+
+/**
+ * Show confetti when progress hits 100% and hasn't shown yet for this goal achievement.
+ */
+watch([goalProgress, savingsGoal], ([pct, goal]) => {
+  if (!goal) {
+    notified100.value = false
+    notified75.value = false
+    showConfetti.value = false
+    confettiTriggerId.value = ''
+    return
+  }
+  // Only allow triggering once for a given goal (and after a reset if goal changes)
+  const completedMarkerKey = `financeflow-confetti-${goal}`
+  const markerValue = localStorage.getItem(completedMarkerKey)
+  if (pct >= 100 && !markerValue) {
+    // Show modal if not already triggered for this goal value
+    showConfetti.value = true
+    localStorage.setItem(completedMarkerKey, 'shown')
+    // reset 75% if re-reached in new goal journey
+    notified75.value = true
+  } else if (pct < 100) {
+    // If goal edited, allow retriggering for next achievement
+    showConfetti.value = false
+    // If the savings goal changed, also clear confetti for all other goals for rapid logic adjustment
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('financeflow-confetti-'))
+      .forEach(k => { 
+        if (Number(k.match(/(\d+(\.\d+)?)/)?.[0]) !== goal) localStorage.removeItem(k)
+      })
+  }
+})
+
+function closeConfettiModal() {
+  showConfetti.value = false
+}
+
 // Reset notification triggers if changing goal or going below milestones
 watch([savingsGoal, goalProgress], ([goal, pct]) => {
   if (!goal) {
     notified100.value = false
     notified75.value = false
+    showConfetti.value = false
+    confettiTriggerId.value = ''
   } else {
     if (pct < 75) notified75.value = false
-    if (pct < 100) notified100.value = false
+    if (pct < 100) {
+      notified100.value = false
+      // Can allow confetti for next achievement if user resets goal and hits 100 again
+      showConfetti.value = false
+    }
   }
 })
 
