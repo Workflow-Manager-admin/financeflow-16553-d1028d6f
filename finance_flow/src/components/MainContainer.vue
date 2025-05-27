@@ -205,7 +205,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import TransactionForm from './TransactionForm.vue'
 import PieChart from './PieChart.vue'
 import LineChart from './LineChart.vue'
@@ -217,6 +217,118 @@ interface Notification {
   type: "success" | "error" | "info";
   message: string;
 }
+
+// SAVINGS GOAL STATE & LOGIC ///
+
+/**
+ * PUBLIC_INTERFACE
+ * State for the savings goal.
+ */
+const savingsGoal = ref<number>(0)
+const goalInput = ref<number | null>(null)
+const editingGoal = ref(false)
+
+const goalAccumulated = computed(() => {
+  // Sum all "income" minus all "expense"
+  let balance = 0
+  transactions?.value?.forEach(t => {
+    if (t.type === 'income') balance += t.amount
+    else if (t.type === 'expense') balance -= t.amount
+  })
+  // Ensure "already saved" value at least zero
+  return Math.max(0, balance)
+})
+
+const accLeftText = computed(() => {
+  if (!savingsGoal.value) return ""
+  if (goalAccumulated.value >= savingsGoal.value) return "Goal Met!"
+  return `$${(savingsGoal.value - goalAccumulated.value).toLocaleString(undefined, {minimumFractionDigits: 2})} left`
+})
+
+/*
+ * PUBLIC_INTERFACE
+ * Ring progress (0...100) for display
+ */
+const goalProgress = computed(() => {
+  if (!savingsGoal.value) return 0
+  let pct = (goalAccumulated.value / savingsGoal.value) * 100
+  pct = Math.max(0, Math.min(Math.round(pct), 100)) // Clamp to 0–100, rounded
+  return pct
+})
+const circumference = 2 * Math.PI * 38
+const progressStrokeOffset = computed(() => {
+  // If no goal or goal is exceeded, set offset accordingly
+  let percent = goalProgress.value
+  if (percent > 100) percent = 100
+  return circumference - (circumference * percent / 100)
+})
+const isGoalMet = computed(() => savingsGoal.value > 0 && goalAccumulated.value >= savingsGoal.value)
+
+/**
+ * PUBLIC_INTERFACE
+ * Set or update savings goal and persist in LocalStorage.
+ */
+function setSavingsGoal() {
+  if (goalInput.value && goalInput.value > 0) {
+    savingsGoal.value = Math.round(goalInput.value * 100) / 100
+    localStorage.setItem('financeflow-savings-goal', savingsGoal.value.toString())
+    editingGoal.value = false
+    goalInput.value = null
+    notifications.value.push({
+      id: Date.now(),
+      type: "success",
+      message: "Savings goal set!"
+    })
+  }
+}
+function cancelGoalEdit() {
+  editingGoal.value = false
+  goalInput.value = savingsGoal.value
+}
+
+/**
+ * Show in-app notifications for savings progress milestones (75%, 100%).
+ */
+let notified75 = ref(false)
+let notified100 = ref(false)
+watch(goalProgress, (newPct) => {
+  if (!savingsGoal.value) return
+  if (newPct >= 100 && !notified100.value) {
+    notifications.value.push({
+      id: Date.now(),
+      type: 'success',
+      message: "🎉 Congrats, you've reached your savings goal!"
+    })
+    notified100.value = true
+  } else if (newPct >= 75 && !notified75.value) {
+    notifications.value.push({
+      id: Date.now(),
+      type: 'info',
+      message: "Almost there! You've saved 75% of your goal."
+    })
+    notified75.value = true
+  }
+}, { immediate: true })
+
+// Reset notification triggers if changing goal or going below milestones
+watch([savingsGoal, goalProgress], ([goal, pct]) => {
+  if (!goal) {
+    notified100.value = false
+    notified75.value = false
+  } else {
+    if (pct < 75) notified75.value = false
+    if (pct < 100) notified100.value = false
+  }
+})
+
+onMounted(() => {
+  // Load savings goal from local storage
+  const storedGoal = localStorage.getItem('financeflow-savings-goal')
+  if (storedGoal && !isNaN(Number(storedGoal))) {
+    savingsGoal.value = Number(storedGoal)
+  }
+  goalInput.value = savingsGoal.value || null
+})
 
 // PUBLIC_INTERFACE
 const isDarkMode = ref(false)
@@ -807,4 +919,55 @@ onMounted(() => {
   opacity: 0;
   transform: translateY(-26px) scale(0.98);
 }
-</style>
+.goal-form {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+}
+.goal-input {
+  border-radius: 9px;
+  border: 1.2px solid #eceafb;
+  padding: 0.38em 0.82em;
+  font-size: 1.04em;
+  background: #f5f6fa;
+  color: #36228f;
+  outline: none;
+  transition: border 0.2s;
+}
+.financeflow-main.dark .goal-input {
+  background: #23223c;
+  border: 1px solid #50498e;
+  color: #fafaff;
+}
+.goal-input:focus {
+  border: 1.5px solid var(--primary);
+}
+.goal-set-btn, .goal-cancel-btn {
+  border-radius: 13px;
+  padding: 0.26em 1.4em;
+  font-size: 1em;
+  font-weight: 600;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  margin-left: 0.2em;
+  transition: background 0.18s;
+}
+.goal-set-btn:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  background: #c6baf6;
+}
+.goal-cancel-btn {
+  background: #fff;
+  color: #6C3EFF;
+  border: 1px solid #6C3EFF;
+  margin-left: 0.34em;
+}
+.goal-cancel-btn:hover {
+  background: #f9f6ff;
+}
+.goal-set-btn:hover {
+  background: #5439ce;
+}
