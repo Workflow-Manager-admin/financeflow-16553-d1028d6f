@@ -50,31 +50,53 @@
           <div class="transaction-manager card">
             <div class="section-title">Transactions</div>
             <div class="transaction-controls">
-              <button class="add-btn">+ Add</button>
-              <!-- Placeholder for filters -->
+              <button class="add-btn" @click="toggleTransactionForm">{{ transactionFormOpen ? 'Close' : '+ Add' }}</button>
+              <!-- Future filters section -->
               <div class="filters">
-                <input type="date" class="filter-input" placeholder="Start date"/>
-                <input type="date" class="filter-input" placeholder="End date"/>
-                <select class="filter-input">
-                  <option>All Categories</option>
+                <input type="date" class="filter-input" v-model="filter.startDate"/>
+                <input type="date" class="filter-input" v-model="filter.endDate"/>
+                <select class="filter-input" v-model="filter.category">
+                  <option value="">All Categories</option>
+                  <option v-for="cat in categories" :key="cat">{{ cat }}</option>
                 </select>
               </div>
             </div>
-            <!-- Placeholder for transaction list -->
+
+            <transition name="fade">
+              <div v-if="transactionFormOpen" style="margin-bottom:1.2rem;">
+                <TransactionForm
+                  :editMode="!!editIndex"
+                  :modelValue="editIndex !== null && editIndex >= 0 ? transactions[editIndex] : null"
+                  @submit="onTransactionFormSubmit"
+                  @cancel="closeTransactionForm"
+                />
+              </div>
+            </transition>
+
             <div class="transaction-list">
-              <div class="transaction-row placeholder">
-                <span class="category">Groceries</span>
-                <span class="desc">Bought fruits</span>
-                <span class="amount expense">- $36.20</span>
-                <span class="date">2024-05-23</span>
+              <transition-group name="fade" tag="div">
+                <div
+                  v-for="(txn, idx) in filteredTransactions"
+                  :key="txn.id"
+                  class="transaction-row"
+                  :style="{ background: selectedRow === idx ? '#f0eeff' : '' }"
+                  @mouseenter="selectedRow = idx"
+                  @mouseleave="selectedRow = null"
+                >
+                  <span class="category">{{ txn.category }}</span>
+                  <span class="desc" :title="txn.description">{{ txn.description || '(No Description)' }}</span>
+                  <span :class="['amount', txn.type]">
+                    {{ txn.type === 'income' ? '+ ' : '- ' }}${{ txn.amount.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
+                  </span>
+                  <span class="date">{{ txn.date }}</span>
+                  <button class="edit-btn" title="Edit" @click="openEditForm(idx)">✎</button>
+                  <!-- Placeholder future: delete button -->
+                  <!-- <button class="delete-btn" title="Delete" @click="">🗑</button> -->
+                </div>
+              </transition-group>
+              <div v-if="filteredTransactions.length === 0" class="transaction-row placeholder">
+                <span>No transactions found.</span>
               </div>
-              <div class="transaction-row placeholder">
-                <span class="category">Salary</span>
-                <span class="desc">Monthly pay</span>
-                <span class="amount income">+ $2,500.00</span>
-                <span class="date">2024-05-20</span>
-              </div>
-              <!-- Animated enter/leave for adding/removing in future -->
             </div>
           </div>
         </div>
