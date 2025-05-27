@@ -542,9 +542,14 @@ onMounted(() => {
   --card-bg: #fff;
   --shadow: 0 2px 12px 0 rgba(60,48,106,0.07);
   min-height: 100svh;
+  width: 100vw;
+  min-width: 0;
   background: var(--main-bg);
   font-family: 'Inter', system-ui, sans-serif;
   transition: background 0.4s;
+  box-sizing: border-box;
+  /* Ensure main always covers viewport and no visual clipping */
+  overflow-x: hidden;
 }
 
 .financeflow-main.dark {
@@ -556,22 +561,42 @@ onMounted(() => {
 
 .main-grid {
   display: grid;
-  grid-template-columns: 1fr 2.1fr;
+  grid-template-columns: minmax(210px, 260px) 1fr;
   gap: 2.4rem;
-  padding: 1.4rem 0 1.4rem 0;
-  transition: all 0.3s cubic-bezier(.6,.34,.68,1.53);
+  padding: 1.4rem 0;
+  min-width: 0;
+  min-height: 70vh;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  /* Prevent grid area from shrinking so left/right are always visible */
+  background: transparent;
 }
 
+@media (max-width: 1100px) {
+  .main-grid {
+    grid-template-columns: 1fr 1.6fr;
+    gap: 1.3rem;
+  }
+}
 @media (max-width: 900px) {
   .main-grid {
     grid-template-columns: 1fr;
     padding: 0.7rem 0;
     gap: 1.2rem;
+    min-width: 0;
+    width: 100%;
   }
   .side-panel {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-evenly;
+    width: 100%;
+    min-width: 0;
+    max-width: 100vw;
+  }
+  .main-content {
+    width: 100%;
   }
 }
 .side-panel {
@@ -579,9 +604,11 @@ onMounted(() => {
   flex-direction: column;
   gap: 2rem;
   align-items: center;
-  min-width: 220px;
+  min-width: 0;
+  width: 100%;
   max-width: 260px;
 }
+
 .savings-goal-card {
   background: var(--card-bg);
   border-radius: 18px;
@@ -591,24 +618,42 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  min-width: 0;
 }
 .ring-placeholder {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 108px;
+  height: 108px;
+  margin-bottom: 0.5rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ring-placeholder svg {
+  display: block;
+  margin: 0 auto;
   width: 90px;
   height: 90px;
-  margin-bottom: 0.5rem;
 }
+
 .ring-value {
   position: absolute;
-  top: 19px;
-  left: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -57%);
   width: 90px;
   height: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
   pointer-events: none;
+  justify-content: center;
 }
+
 .goal-value {
   font-size: 1.8rem;
   font-weight: 600;
@@ -683,6 +728,21 @@ onMounted(() => {
 }
 .side-spacer {
   flex: 1;
+}
+
+/* Main content/section should fill the right grid area with no shrinking or overflow/black gap */
+.main-content {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  background: transparent;
+  overflow-x: visible;
+  /* Ensure section takes available space and won't cause overflow */
 }
 
 /* Transaction/Visualization/Notification Styles retain as previous */
@@ -799,10 +859,15 @@ onMounted(() => {
   gap: 1.45rem;
   flex-wrap: wrap;
   margin-top: 1.4rem;
+  width: 100%;
+  min-width: 0;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 .visualization-card {
   flex: 1 1 330px;
   min-width: 260px;
+  max-width: 100%;
   background: var(--card-bg);
   border-radius: 13px;
   box-shadow: var(--shadow);
