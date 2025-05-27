@@ -155,6 +155,7 @@
                       :modelValue="editIndex !== null && editIndex >= 0 && transactions[editIndex]?.type === 'expense'
                         ? transactions[editIndex]
                         : { type: 'expense' }"
+                      lockedType="expense"
                       @submit="onTransactionFormSubmit"
                       @cancel="closeTransactionForm"
                       v-show="editIndex === null || (editIndex !== null && transactions[editIndex]?.type === 'expense')"
@@ -169,6 +170,7 @@
                       :modelValue="editIndex !== null && editIndex >= 0 && transactions[editIndex]?.type === 'income'
                         ? transactions[editIndex]
                         : { type: 'income' }"
+                      lockedType="income"
                       @submit="onTransactionFormSubmit"
                       @cancel="closeTransactionForm"
                       v-show="editIndex === null || (editIndex !== null && transactions[editIndex]?.type === 'income')"
