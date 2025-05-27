@@ -3,7 +3,7 @@
 > vite dev --host 0.0.0.0 --port 3000
 
 
-  VITE v6.1.0  ready in 6202 ms
+  VITE v6.1.0  ready in 3809 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://172.17.0.2:3000/
@@ -11,3 +11,4 @@
   ➜  Vue DevTools: Press Alt(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
 [1m[33m[@vue/compiler-sfc][0m[33m `defineProps` is a compiler macro and no longer needs to be imported.[0m
 
+10:54:34 AM [vite] (client) hmr update /src/components/MainContainer.vue, /src/components/TransactionForm.vue
