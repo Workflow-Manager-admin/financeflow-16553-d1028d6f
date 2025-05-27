@@ -31,31 +31,44 @@
       <aside class="side-panel">
         <div class="savings-goal-card card">
           <div class="ring-placeholder mini-ring">
-            <svg width="74" height="74">
-              <circle
-                cx="37"
-                cy="37"
-                r="30"
-                stroke="#E0E0E0"
-                stroke-width="8"
-                fill="none"
-              />
-              <circle
-                cx="37"
-                cy="37"
-                r="30"
-                :stroke="isGoalMet ? '#22bb66' : (goalProgress >= 75 ? '#fdc143' : '#6C3EFF')"
-                stroke-width="8"
-                fill="none"
-                :stroke-dasharray="2*Math.PI*30"
-                :stroke-dashoffset="2*Math.PI*30 - (2*Math.PI*30*goalProgress/100)"
-                style="transition: stroke-dashoffset 1s cubic-bezier(.66,.01,.68,1.05), stroke 0.7s;"
-                stroke-linecap="round"
-              />
-            </svg>
-            <div class="ring-value mini-ring-value">
-              <div class="goal-value mini-goal-value">{{ goalProgress }}%</div>
-              <div class="goal-label mini-goal-label">Goal</div>
+            <div class="svg-ring-outer">
+              <svg width="74" height="74" class="svg-ring">
+                <circle
+                  cx="37"
+                  cy="37"
+                  r="30"
+                  stroke="#E0E0E0"
+                  stroke-width="8"
+                  fill="none"
+                />
+                <circle
+                  cx="37"
+                  cy="37"
+                  r="30"
+                  :stroke="isGoalMet ? '#22bb66' : (goalProgress >= 75 ? '#fdc143' : '#6C3EFF')"
+                  stroke-width="8"
+                  fill="none"
+                  :stroke-dasharray="2*Math.PI*30"
+                  :stroke-dashoffset="2*Math.PI*30 - (2*Math.PI*30*goalProgress/100)"
+                  style="transition: stroke-dashoffset 1s cubic-bezier(.66,.01,.68,1.05), stroke 0.7s;"
+                  stroke-linecap="round"
+                />
+                <!-- Perfectly centered percentage label inside the SVG ring -->
+                <text
+                  x="37"
+                  y="37"
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  class="svg-percentage-label"
+                >{{ goalProgress }}%</text>
+                <text
+                  x="37"
+                  y="50"
+                  text-anchor="middle"
+                  class="svg-goal-label"
+                  style="font-size: 0.72em; fill: #5c4ec9;"
+                >Goal</text>
+              </svg>
             </div>
           </div>
           <div class="goal-desc mini-goal-desc goal-inline-summary">
@@ -628,5 +641,47 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* (No changes here; use external main.css for input changes) */
+/* Center the percentage label within the SVG ring using SVG text alignment and styled for clarity */
+.svg-ring-outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 74px;
+  height: 74px;
+}
+.svg-ring {
+  display: block;
+  width: 74px;
+  height: 74px;
+}
+.svg-percentage-label {
+  font-size: 1.22em;
+  font-weight: 700;
+  fill: #6C3EFF;
+  paint-order: stroke fill;
+  /* For dark mode support, could adjust color dynamically if needed */
+  /* Add a text-shadow for clarity on gray ring */
+  text-shadow: 0 1px 1px #fff, 0 -1px 1px #fff, 0 0 4px #efeaff;
+  user-select: none;
+}
+.svg-goal-label {
+  font-size: 0.8em;
+  font-weight: 500;
+  fill: #988bdb;
+  user-select: none;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 700px) {
+  .svg-ring-outer {
+    width: 62px; height: 62px;
+  }
+  .svg-ring {
+    width: 62px; height: 62px;
+  }
+  /* Slightly reduce font size for mobile if needed */
+  .svg-percentage-label { font-size: 1em; }
+  .svg-goal-label { font-size: 0.7em; }
+}
 </style>
