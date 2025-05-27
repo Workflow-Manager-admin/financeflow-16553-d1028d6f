@@ -223,6 +223,64 @@ const filter = ref({
 })
 
 /**
+ * Pie chart color palette and logic.
+ */
+const pieColors = [
+  "#6C3EFF", "#e9446e", "#22bb66", "#fdc143",
+  "#f58b57", "#3c6eb4", "#8872e6", "#b8b8b8"
+]
+
+/**
+ * PUBLIC_INTERFACE
+ * Computed: summary of expense amount grouped by category.
+ */
+const expenseCategorySummary = computed(() => {
+  const categoryMap: Record<string, number> = {}
+  for (const txn of transactions.value) {
+    if (txn.type === 'expense') {
+      if (!categoryMap[txn.category]) categoryMap[txn.category] = 0
+      categoryMap[txn.category] += txn.amount
+    }
+  }
+  return categoryMap
+})
+
+/**
+ * PUBLIC_INTERFACE
+ * Computed: summarized trend for line chart (monthly or daily, income/expense).
+ */
+const trendLabels = computed(() => {
+  // Use up to 8 most recent distinct dates for line (ISO string, sorted).
+  const allDates = transactions.value
+    .map(txn => txn.date)
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .sort()
+  // If many, take only last 8:
+  return allDates.slice(-8)
+})
+
+const trendSeries = computed(() => {
+  // 2 lines: Income and Expense
+  const labels = trendLabels.value
+  const incomeSeries: number[] = []
+  const expenseSeries: number[] = []
+  labels.forEach(date => {
+    const incomeAmt = transactions.value
+      .filter(t => t.date === date && t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0)
+    const expenseAmt = transactions.value
+      .filter(t => t.date === date && t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0)
+    incomeSeries.push(Number(incomeAmt.toFixed(2)))
+    expenseSeries.push(Number(expenseAmt.toFixed(2)))
+  })
+  return [
+    { label: 'Income', data: incomeSeries, color: "#22bb66" },
+    { label: 'Expense', data: expenseSeries, color: "#e94242" }
+  ]
+})
+
+/**
  * PUBLIC_INTERFACE
  * Computed filtered transactions based on filter form.
  */
