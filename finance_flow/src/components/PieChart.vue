@@ -11,8 +11,7 @@ import {
   Tooltip,
   Legend,
   Title,
-  DoughnutController,
-  Plugin
+  DoughnutController
 } from 'chart.js'
 
 Chart.register(ArcElement, Tooltip, Legend, Title, DoughnutController)
