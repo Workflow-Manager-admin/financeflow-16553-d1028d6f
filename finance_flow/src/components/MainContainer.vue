@@ -243,7 +243,7 @@
               title="Expenses by Category"
             />
           </div>
-          <div class="visualization-card card">
+          <div class="visualization-card visualization-card-wide card">
             <div class="section-title">Monthly Trends</div>
             <LineChart
               :labels="trendLabels"

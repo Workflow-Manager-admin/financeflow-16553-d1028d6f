@@ -70,7 +70,54 @@ onMounted(() => { renderChart() })
 </script>
 
 <template>
-  <div style="width:100%;max-width:440px;margin:auto;">
+  <div class="linechart-container">
     <canvas ref="canvasRef" aria-label="Transaction Trend Line Chart" />
   </div>
 </template>
+
+<style scoped>
+.linechart-container {
+  width: 100%;
+  min-width: 340px;
+  max-width: 770px;
+  min-height: 280px;
+  max-height: 500px;
+  margin: 0 auto;
+  padding: 1.1rem 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Make the chart much larger for desktop */
+@media (min-width: 900px) {
+  .linechart-container {
+    max-width: 820px;
+    min-height: 370px;
+    padding: 2rem 2.5rem;
+  }
+}
+
+/* Allow some vertical stretching for big screens */
+@media (min-width: 1300px) {
+  .linechart-container {
+    max-width: 1100px;
+    min-height: 440px;
+    max-height: 670px;
+    padding: 2.6rem 3.4rem;
+  }
+}
+
+/* Responsive for mobile, but keep it visually larger */
+@media (max-width: 700px) {
+  .linechart-container {
+    min-width: 96vw;
+    max-width: 99vw;
+    min-height: 220px;
+    max-height: 330px;
+    padding: 0.4rem 0.2rem 0.9rem 0.2rem;
+  }
+}
+
+</style>
