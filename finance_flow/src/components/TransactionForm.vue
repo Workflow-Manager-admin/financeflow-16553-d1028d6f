@@ -1,12 +1,14 @@
 <template>
   <form @submit.prevent="submitForm" class="transaction-form">
-    <div class="form-row">
+    <!-- Only show type selector if lockedType is NOT supplied -->
+    <div class="form-row" v-if="!lockedType">
       <label>Type</label>
       <select v-model="form.type" required>
         <option value="expense">Expense</option>
         <option value="income">Income</option>
       </select>
     </div>
+    <!-- If lockedType, don't show selector, but type is internally set/fixed -->
     <div class="form-row">
       <label>Category</label>
       <select v-model="form.category" required>
@@ -35,12 +37,16 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import type { Transaction } from './transaction-model'
+import type { Transaction, TransactionType } from './transaction-model'
 import { defaultCategories } from './transaction-model'
 
 interface Props {
   modelValue?: Partial<Transaction>
   editMode?: boolean
+  /**
+   * When set ('income' or 'expense'), hides type field and locks type for this form.
+   */
+  lockedType?: TransactionType
 }
 const props = defineProps<Props>()
 const emit = defineEmits(['submit', 'cancel'])
@@ -61,20 +67,32 @@ const form = ref<Transaction>({
   ...props.modelValue
 })
 
-// SUPPORT reactivity in form on edit:
+// Whenever modelValue or lockedType changes, update the form accordingly
 watch(
-  () => props.modelValue,
-  (val) => {
-    if (val) form.value = { ...emptyForm, ...val }
-    else form.value = { ...emptyForm }
+  () => [props.modelValue, props.lockedType],
+  ([val, type]) => {
+    // If lockedType present, always set type to lockedType (can't be edited)
+    if (val) {
+      form.value = { ...emptyForm, ...val }
+    } else {
+      form.value = { ...emptyForm }
+    }
+    if (type) {
+      form.value.type = type
+    }
   },
   { immediate: true }
 )
 
 const editMode = computed(() => props.editMode === true)
 
+// PUBLIC_INTERFACE
 function submitForm() {
-  emit('submit', { ...form.value })
+  // Ensure type is locked before emitting submit (if prop exists)
+  emit('submit', {
+    ...form.value,
+    ...(props.lockedType ? { type: props.lockedType } : {})
+  })
 }
 </script>
 
