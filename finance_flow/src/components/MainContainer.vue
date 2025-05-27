@@ -633,6 +633,7 @@ onMounted(() => {
   position: relative;
   min-width: 0;
 }
+/* --- SAVINGS RING: Mini + Alignment Tweak Styles --- */
 .ring-placeholder {
   position: relative;
   display: flex;
@@ -644,12 +645,22 @@ onMounted(() => {
   margin-left: auto;
   margin-right: auto;
 }
-
 .ring-placeholder svg {
   display: block;
   margin: 0 auto;
   width: 90px;
   height: 90px;
+}
+
+.ring-placeholder.mini-ring {
+  width: 74px;
+  height: 74px;
+  margin-bottom: 0.46rem;
+}
+
+.ring-placeholder.mini-ring svg {
+  width: 74px;
+  height: 74px;
 }
 
 .ring-value {
@@ -666,6 +677,10 @@ onMounted(() => {
   justify-content: center;
 }
 
+.ring-value.mini-ring-value {
+  width: 74px;
+  height: 40px;
+}
 .goal-value {
   font-size: 1.8rem;
   font-weight: 600;
@@ -677,6 +692,16 @@ onMounted(() => {
   color: #6a6a8e;
   opacity: 0.92;
 }
+
+.goal-value.mini-goal-value {
+  font-size: 1.32rem;
+  font-weight: 600;
+}
+.goal-label.mini-goal-label {
+  font-size: 0.83rem;
+  margin-top: -.17em;
+}
+
 .goal-desc {
   margin-top: 0.2rem;
   font-size: 1.08rem;
@@ -684,13 +709,29 @@ onMounted(() => {
   color: var(--primary);
   font-weight: 500;
 }
+.mini-goal-desc {
+  margin-top: 0.12em;
+  font-size: 1.02rem;
+  color: var(--primary);
+  font-weight: 500;
+  text-align: center;
+}
 
-/* Goal input/add/edit styles */
+/* --- Mini/Compact Goal Input Alignment+Size --- */
 .goal-form {
   display: flex;
   align-items: center;
   gap: 0.45em;
 }
+
+.goal-form.compact {
+  gap: 0.23em;
+  justify-content: center;
+  margin-top: 0.30em;
+  margin-bottom: 0.10em;
+}
+
+/* Regular input style */
 .goal-input {
   border-radius: 9px;
   border: 1.2px solid #eceafb;
@@ -701,7 +742,17 @@ onMounted(() => {
   outline: none;
   transition: border 0.2s;
 }
-.financeflow-main.dark .goal-input {
+/* Smaller version for sidebar compact */
+.goal-input.mini-input {
+  width: 60px;
+  font-size: .97em;
+  padding: 0.29em 0.62em;
+  border-radius: 7px;
+  margin-right: 0.12em;
+}
+
+.financeflow-main.dark .goal-input,
+.financeflow-main.dark .goal-input.mini-input {
   background: #23223c;
   border: 1px solid #50498e;
   color: #fafaff;
@@ -709,6 +760,8 @@ onMounted(() => {
 .goal-input:focus {
   border: 1.5px solid var(--primary);
 }
+
+/* Button tweaks for mini version */
 .goal-set-btn, .goal-cancel-btn {
   border-radius: 13px;
   padding: 0.26em 1.4em;
@@ -721,22 +774,54 @@ onMounted(() => {
   margin-left: 0.2em;
   transition: background 0.18s;
 }
-.goal-set-btn:disabled {
+.goal-set-btn.mini-goal-set-btn {
+  padding: 0.23em 0.77em;
+  font-size: .96em;
+  border-radius: 9px;
+  margin-left: 0.09em;
+}
+
+.goal-set-btn:disabled,
+.goal-set-btn.mini-goal-set-btn:disabled {
   opacity: 0.6;
   pointer-events: none;
   background: #c6baf6;
 }
+
 .goal-cancel-btn {
   background: #fff;
   color: #6C3EFF;
   border: 1px solid #6C3EFF;
   margin-left: 0.34em;
 }
-.goal-cancel-btn:hover {
+.goal-cancel-btn.mini-goal-cancel-btn {
+  color: #6C3EFF;
+  background: #fff;
+  border: 1px solid #6C3EFF;
+  font-size: 0.95em;
+  border-radius: 8px;
+  padding: 0.23em .68em;
+  margin-left: 0.15em;
+}
+.goal-cancel-btn:hover,
+.goal-cancel-btn.mini-goal-cancel-btn:hover {
   background: #f9f6ff;
 }
-.goal-set-btn:hover {
+.goal-set-btn:hover,
+.goal-set-btn.mini-goal-set-btn:hover {
   background: #5439ce;
+}
+.mini-edit-goal-btn {
+  margin: 0.35rem .04em .01em .01em;
+  font-size: 0.89em;
+  background: none;
+  color: #8672d8;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.12em;
+}
+.mini-edit-goal-btn:hover {
+  color: #5439ce;
 }
 .side-spacer {
   flex: 1;
