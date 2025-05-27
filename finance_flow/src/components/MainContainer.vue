@@ -749,4 +749,86 @@ onMounted(() => {
   .svg-percentage-label { font-size: 1em; }
   .svg-goal-label { font-size: 0.7em; }
 }
+/* --- Visualizations Row and Card Sizing for Chart Readability --- */
+.visualizations-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.2rem;
+  margin-top: 1.8rem;
+  justify-content: center;
+  align-items: stretch;
+}
+.visualization-card {
+  flex: 1 1 320px;
+  min-width: 295px;
+  max-width: 440px;
+  min-height: 295px;
+  box-sizing: border-box;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.visualization-card .section-title {
+  margin-bottom: 0.7em;
+  font-size: 1.1em;
+}
+
+/* Special wide card for Monthly Trends */
+.visualization-card-wide {
+  flex: 3 1 750px;
+  max-width: 900px;
+  min-width: 340px;
+  min-height: 340px;
+  padding-left: 0.4em;
+  padding-right: 0.4em;
+  margin-bottom: 2.1rem;
+  box-sizing: border-box;
+  /* Keep matching shadow/panel style of card */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+/* For desktop large -- make trends really big */
+@media (min-width: 1200px) {
+  .visualization-card-wide {
+    max-width: 1100px;
+    min-height: 410px;
+    padding-left: 1.9em;
+    padding-right: 1.9em;
+  }
+}
+
+/* On mid-viewport screens show "Monthly Trends" at ~full width, stack vertically */
+@media (max-width: 1000px) {
+  .visualizations-row {
+    flex-direction: column;
+    gap: 1.7rem;
+    align-items: stretch;
+  }
+  .visualization-card, .visualization-card-wide {
+    max-width: 99vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* On mobile, trends remains visually dominant */
+@media (max-width: 700px) {
+  .visualizations-row {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .visualization-card,
+  .visualization-card-wide {
+    max-width: 97vw;
+    min-width: 95vw;
+    min-height: 200px;
+    padding-left: 0.08em;
+    padding-right: 0.08em;
+  }
+}
+
 </style>
