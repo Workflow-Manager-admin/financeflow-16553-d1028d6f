@@ -97,24 +97,32 @@
             >✎ Edit goal</button>
             <form
               v-if="editingGoal"
-              class="goal-form compact"
+              class="goal-form compact savings-edit-form"
               @submit.prevent="setSavingsGoal"
             >
-              <input
-                v-model.number="goalInput"
-                type="number"
-                min="1"
-                step="0.01"
-                placeholder="New goal ($)"
-                class="goal-input mini-input"
-                required
-              />
-              <button
-                type="submit"
-                class="goal-set-btn mini-goal-set-btn"
-                :disabled="!goalInput || goalInput <= 0"
-              >Save</button>
-              <button type="button" class="goal-cancel-btn mini-goal-cancel-btn" @click="cancelGoalEdit">Cancel</button>
+              <div class="goal-edit-input-wrap">
+                <input
+                  v-model.number="goalInput"
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  placeholder="New goal ($)"
+                  class="goal-input mini-input"
+                  required
+                />
+              </div>
+              <div class="goal-edit-actions">
+                <button
+                  type="submit"
+                  class="goal-set-btn mini-goal-set-btn"
+                  :disabled="!goalInput || goalInput <= 0"
+                >Save</button>
+                <button
+                  type="button"
+                  class="goal-cancel-btn mini-goal-cancel-btn"
+                  @click="cancelGoalEdit"
+                >Cancel</button>
+              </div>
             </form>
           </template>
         </div>
@@ -810,6 +818,53 @@ onMounted(() => {
   justify-content: center;
   margin-top: 0.30em;
   margin-bottom: 0.10em;
+}
+
+/* Savings goal edit form overrides */
+.goal-form.savings-edit-form {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.34em;
+  width: 100%;
+}
+
+/* Wrap the input to allow control of width, centering */
+.goal-edit-input-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Buttons under field, spaced and same width on mobile/small */
+.goal-edit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.55em;
+  margin-top: 0.36em;
+}
+
+.goal-edit-actions .goal-set-btn,
+.goal-edit-actions .goal-cancel-btn {
+  min-width: 68px;
+}
+
+@media (max-width: 480px) {
+  .goal-form.savings-edit-form {
+    gap: 0.18em;
+  }
+  .goal-edit-actions {
+    flex-direction: column;
+    gap: 0.32em;
+    align-items: stretch;
+    width: 98%;
+    margin: 0.21em auto 0 auto;
+  }
+  .goal-edit-actions .goal-set-btn,
+  .goal-edit-actions .goal-cancel-btn {
+    width: 100%;
+    min-width: unset;
+  }
 }
 
 /* Regular input style */
