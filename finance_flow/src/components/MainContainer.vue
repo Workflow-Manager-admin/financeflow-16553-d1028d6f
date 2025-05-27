@@ -105,13 +105,19 @@
         <div class="visualizations-row">
           <div class="visualization-card card">
             <div class="section-title">Expense by Category</div>
-            <!-- Chart Placeholder -->
-            <div class="chart-placeholder">[Pie Chart]</div>
+            <PieChart
+              :data="expenseCategorySummary"
+              :colors="pieColors"
+              title="Expenses by Category"
+            />
           </div>
           <div class="visualization-card card">
             <div class="section-title">Monthly Trends</div>
-            <!-- Chart Placeholder -->
-            <div class="chart-placeholder">[Line Chart]</div>
+            <LineChart
+              :labels="trendLabels"
+              :series="trendSeries"
+              title="Income & Expenses Over Time"
+            />
           </div>
         </div>
       </section>
@@ -122,6 +128,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import TransactionForm from './TransactionForm.vue'
+import PieChart from './PieChart.vue'
+import LineChart from './LineChart.vue'
 import type { Transaction, TransactionCategory } from './transaction-model'
 import { defaultCategories } from './transaction-model'
 
