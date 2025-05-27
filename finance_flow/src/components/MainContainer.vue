@@ -718,12 +718,24 @@ onMounted(() => {
   text-shadow: 0 1px 1px #fff, 0 -1px 1px #fff, 0 0 4px #efeaff;
   user-select: none;
 }
+
+/* Dark mode: SVG percentage ring label much lighter purple */
+.financeflow-main.dark .svg-percentage-label {
+  fill: var(--color-progress-ring-primary, #b09bfe);
+  text-shadow: 0 2px 7px #271a3c33, 0 1px 2px #bba8fd;
+}
+
 .svg-goal-label {
   font-size: 0.8em;
   font-weight: 500;
   fill: #988bdb;
   user-select: none;
   letter-spacing: 0.04em;
+}
+
+/* Dark mode: goal label lighter purple */
+.financeflow-main.dark .svg-goal-label {
+  fill: var(--color-goal-label, #bba8fd);
 }
 
 @media (max-width: 700px) {
