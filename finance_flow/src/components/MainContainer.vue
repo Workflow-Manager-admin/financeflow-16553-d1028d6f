@@ -58,13 +58,14 @@
               <div class="goal-label mini-goal-label">Goal</div>
             </div>
           </div>
-          <div class="goal-desc mini-goal-desc">
+          <div class="goal-desc mini-goal-desc goal-inline-summary">
             <template v-if="savingsGoal > 0">
-              Save <span style="color:var(--primary); font-size:1.01em">${{ savingsGoal.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</span>
-              <span v-if="goalAccumulated > 0" style="font-size:0.93em;color:#7c73b3; font-weight:400;">({{ accLeftText }})</span>
+              <span class="goal-inline-label">Save</span>
+              <span class="goal-inline-value">${{ savingsGoal.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</span>
+              <span v-if="goalAccumulated > 0" class="goal-inline-left">{{ accLeftText }}</span>
             </template>
             <template v-else>
-              Set your savings goal!
+              <span class="goal-inline-placeholder">Set your savings goal!</span>
             </template>
           </div>
           <form
@@ -804,6 +805,55 @@ onMounted(() => {
   color: var(--primary);
   font-weight: 500;
   text-align: center;
+}
+
+/* --- Inline/Compact: Savings Goal Summary --- */
+.goal-inline-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  flex-wrap: wrap;
+  margin-top: 0.23em;
+  margin-bottom: 0.18em;
+  padding: 0;
+  font-size: 1.03rem;
+  min-height: 28px;
+}
+.goal-inline-label {
+  color: #746bc5;
+  font-size: 1em;
+  font-weight: 500;
+  margin-right: 0.10em;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+.goal-inline-value {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.07em;
+  letter-spacing: 0.01em;
+  margin-right: 0.16em;
+  white-space: nowrap;
+}
+.goal-inline-left {
+  color: #7c73b3;
+  font-size: 0.97em;
+  font-weight: 400;
+  margin-left: 0.10em;
+  white-space: nowrap;
+}
+.goal-inline-placeholder {
+  color: #958dcf;
+  opacity: 0.91;
+  font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  .goal-inline-summary {
+    font-size: 0.97rem;
+    gap: 0.32em;
+  }
 }
 
 /* --- Mini/Compact Goal Input Alignment+Size --- */
