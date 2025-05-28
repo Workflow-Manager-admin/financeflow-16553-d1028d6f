@@ -154,28 +154,25 @@ describe('MainContainer', () => {
     // Both should exist and have canvas for Chart.js
     expect(wrapper.findComponent({ name: 'PieChart' }).find('canvas').exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'LineChart' }).find('canvas').exists()).toBe(true)
-    // Add a transaction and check if chart updates (simplified, can't assert pixels)
-    wrapper.vm.transactions.unshift({
-      id: 'i2',
-      type: 'income',
-      amount: 123,
-      category: 'Savings',
-      date: '2024-06-18',
-      description: 'Monthly'
-    })
-    await nextTick()
-    // Re-render: Pie/Line chart data should have changed (not assertable in pixels but no error thrown)
-    expect(wrapper.findComponent({ name: 'LineChart' }).exists()).toBe(true)
+    // Add a transaction via UI
+    await wrapper.find('.add-btn').trigger('click')
+    const forms = wrapper.findAllComponents({ name: 'TransactionForm' })
+    // Find any visible form (income or expense)
+    const addForm = forms.find(f => f.isVisible())
+    await addForm!.find('input[type="number"]').setValue('123')
+    await addForm!.find('input[type="date"]').setValue('2024-06-22')
+    await addForm!.find('button[type="submit"]').trigger('submit')
+    await flushPromises()
+    // Canvas for charts should still be present
+    expect(wrapper.findComponent({ name: 'LineChart' }).find('canvas').exists()).toBe(true)
   })
 
   it('is visually responsive (basic size check)', async () => {
     // Force container resize (works in jsdom just to a point)
     const container = wrapper.get('.main-grid')
-    container.element.style.width = '375px'
-    await nextTick()
-    // Should still display sidebar + main content (simulate mobile)
+    // No need to set style; just check structure/classes are correct
     expect(container.classes()).toContain('main-grid')
-    // Cannot fully simulate CSS media queries in jsdom: schematic assertion
-    expect(wrapper.html()).toMatch(/side-panel/)
+    expect(wrapper.find('.side-panel').exists()).toBe(true)
+    expect(wrapper.find('.main-content').exists()).toBe(true)
   })
 })
