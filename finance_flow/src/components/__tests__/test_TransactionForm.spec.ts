@@ -72,13 +72,14 @@ describe('TransactionForm', () => {
     const btn = wrapper.find('button.form-submit')
     await wrapper.find('input[type="number"]').setValue('')
     await btn.trigger('submit')
-    // If you emit with blank value, the form will emit with default 0 value, but UI disables submit if 0.
-    expect(wrapper.vm.form.amount).toBe(0)
+    // Should not emit submit for invalid (would be blocked in UI)
+    // But in test, form.amount would be 0, no new event if client validation holds
+    expect(wrapper.emitted('submit')).toBeFalsy()
     // Date must have a value, otherwise today by default
     await wrapper.find('input[type="number"]').setValue('3')
     await wrapper.find('input[type="date"]').setValue('')
     await btn.trigger('submit')
-    // Should default to today or fallback, don't throw/error
+    // Should emit event, date should be set by component logic
     expect(wrapper.emitted('submit')).toBeTruthy()
   })
 })
