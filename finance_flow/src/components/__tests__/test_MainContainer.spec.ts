@@ -119,18 +119,17 @@ describe('MainContainer', () => {
       expect(wrapper.text()).toMatch(/\$300\.00/)
       // Confetti and notification should not display yet (not enough income)
     }
-    // Manually add an income transaction to meet goal
-    wrapper.vm.transactions.unshift({
-      id: 'income1000',
-      type: 'income',
-      amount: 500,
-      category: 'Salary',
-      date: '2024-06-18',
-      description: 'Win'
-    })
-    await nextTick()
-    // Progress should show 100%
+    // Add income: open transaction form, switch to income, fill, and submit
+    await wrapper.find('.add-btn').trigger('click')
+    const forms = wrapper.findAllComponents({ name: 'TransactionForm' })
+    // income form is key 'income-form'
+    const incomeForm = forms.find(f => f.vm.$.vnode.key === 'income-form')
+    await incomeForm!.find('input[type="number"]').setValue('500')
+    await incomeForm!.find('input[type="date"]').setValue('2024-06-18')
+    await incomeForm!.find('button[type="submit"]').trigger('submit')
+    await flushPromises()
     const ringLabel = wrapper.find('.svg-percentage-label')
+    // Progress must be 100%
     expect(ringLabel.text()).toMatch('100')
   })
 
