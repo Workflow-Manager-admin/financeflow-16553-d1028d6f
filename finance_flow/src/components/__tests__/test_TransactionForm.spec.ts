@@ -35,16 +35,14 @@ describe('TransactionForm', () => {
     expect(data.type).toBe('expense')
   })
 
-  it('properly locks the type and disables selector if lockedType is set', () => {
+  it('properly locks the type and disables selector if lockedType is set', async () => {
     const wrapper = mount(TransactionForm, {
       props: { lockedType: 'income' }
     })
     expect(wrapper.html()).not.toMatch(/Type<\/label>/)
-    // Don't assert internal form, ensure value persists via event
     await wrapper.find('button[type="submit"]').trigger('submit')
     const emitted = wrapper.emitted('submit')
     expect(emitted).toBeTruthy()
-    // type should always be 'income' because lockedType is set
     expect((emitted![0][0] as {type: string}).type).toBe('income')
   })
 
@@ -53,7 +51,6 @@ describe('TransactionForm', () => {
     const options = wrapper.findAll('select option')
     const incomeCats = getCategoriesForType('income')
     expect(options.length).toBeGreaterThanOrEqual(incomeCats.length)
-    // Expense type: switchable in UI only if not locked
     wrapper = mount(TransactionForm, { props: { modelValue: { type: 'expense' as const } } })
     await wrapper.find('select').setValue('Entertainment')
     await wrapper.find('button[type="submit"]').trigger('submit')
@@ -76,13 +73,10 @@ describe('TransactionForm', () => {
     const btn = wrapper.find('button.form-submit')
     await wrapper.find('input[type="number"]').setValue('')
     await btn.trigger('submit')
-    // Should not emit submit if empty
     expect(wrapper.emitted('submit')).toBeFalsy()
-    // Changing only one input should allow emit
     await wrapper.find('input[type="number"]').setValue('3')
     await wrapper.find('input[type="date"]').setValue('')
     await btn.trigger('submit')
-    // Should emit event, date should be set by component logic
     expect(wrapper.emitted('submit')).toBeTruthy()
   })
 })
