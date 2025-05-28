@@ -51,7 +51,6 @@ describe('TransactionForm', () => {
     // Expense type: switchable in UI only if not locked
     wrapper = mount(TransactionForm, { props: { modelValue: { type: 'expense' as const } } })
     await wrapper.find('select').setValue('Entertainment')
-    // Don't assert category internal, just submit and check event
     await wrapper.find('button[type="submit"]').trigger('submit')
     expect(wrapper.emitted('submit')).toBeTruthy()
     // Custom fallback
@@ -72,10 +71,9 @@ describe('TransactionForm', () => {
     const btn = wrapper.find('button.form-submit')
     await wrapper.find('input[type="number"]').setValue('')
     await btn.trigger('submit')
-    // Should not emit submit for invalid (would be blocked in UI)
-    // But in test, form.amount would be 0, no new event if client validation holds
+    // Should not emit submit if empty
     expect(wrapper.emitted('submit')).toBeFalsy()
-    // Date must have a value, otherwise today by default
+    // Changing only one input should allow emit
     await wrapper.find('input[type="number"]').setValue('3')
     await wrapper.find('input[type="date"]').setValue('')
     await btn.trigger('submit')
