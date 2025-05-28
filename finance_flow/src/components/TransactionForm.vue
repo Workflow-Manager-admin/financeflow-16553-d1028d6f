@@ -68,15 +68,14 @@ const emptyForm: Transaction = {
 
 const form = ref<Transaction>({
   ...emptyForm,
-  ...props.modelValue
+  ...(props.modelValue && typeof props.modelValue === 'object' ? props.modelValue : {})
 })
 
 // Whenever modelValue or lockedType changes, update the form accordingly
 watch(
   () => [props.modelValue, props.lockedType],
   ([val, type]) => {
-    // If lockedType present, always set type to lockedType (can't be edited)
-    if (val) {
+    if (val && typeof val === 'object') {
       form.value = { ...emptyForm, ...val }
     } else {
       form.value = { ...emptyForm }
@@ -93,10 +92,11 @@ const editMode = computed(() => props.editMode === true)
 // PUBLIC_INTERFACE
 function submitForm() {
   // Ensure type is locked before emitting submit (if prop exists)
-  emit('submit', {
+  const out: Transaction = {
     ...form.value,
-    ...(props.lockedType ? { type: props.lockedType } : {})
-  })
+    type: props.lockedType ?? form.value.type
+  }
+  emit('submit', out)
 }
 </script>
 
