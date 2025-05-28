@@ -12,12 +12,17 @@
     <div class="form-row">
       <label>Category</label>
       <select v-model="form.category" required>
-        <option v-for="cat in categoriesToShow" :key="typeof cat === 'string' ? cat : cat.id" :value="cat">
+        <option v-for="cat in categoriesToShow" :key="typeof cat === 'string' ? cat : (cat.id ?? cat.name)" :value="cat">
           {{ typeof cat === 'string' ? cat : cat.name }}
         </option>
-        <!-- Custom fallback just in case for preexisting custom value -->
-        <option v-if="form.category && categoriesToShow.findIndex(c => (typeof c === 'string' ? c === form.category : c.id === form.category.id)) === -1"
-                :value="form.category">
+        <!-- Custom fallback for preexisting custom value -->
+        <option
+          v-if="form.category && categoriesToShow.findIndex(c => (typeof c === 'string'
+            ? c === form.category
+            : (typeof form.category === 'string'
+                ? false
+                : c.id === form.category.id || c.name === form.category.name))) === -1"
+          :value="form.category">
           {{ typeof form.category === 'string' ? form.category : form.category.name }}
         </option>
       </select>
@@ -81,14 +86,14 @@ const form = ref<Transaction>({
 watch(
   () => [props.modelValue, props.lockedType],
   ([val, type]) => {
-    // If lockedType present, always set type to lockedType (can't be edited)
-    if (val) {
+    // Ensure val is an object, otherwise spread only emptyForm
+    if (val && typeof val === 'object') {
       form.value = { ...emptyForm, ...val }
     } else {
       form.value = { ...emptyForm }
     }
     if (type) {
-      form.value.type = type
+      form.value.type = type as typeof form.value.type
     }
   },
   { immediate: true }
