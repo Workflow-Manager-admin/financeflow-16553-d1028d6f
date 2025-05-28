@@ -159,7 +159,9 @@
                 <input type="date" class="filter-input" v-model="filter.endDate"/>
                 <select class="filter-input" v-model="filter.category">
                   <option value="">All Categories</option>
-                  <option v-for="cat in categories" :key="cat">{{ cat }}</option>
+                  <option v-for="cat in categories" :key="typeof cat === 'string' ? cat : cat.id">
+                    {{ typeof cat === 'string' ? cat : cat.name }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -217,7 +219,9 @@
                   @mouseenter="selectedRow = idx"
                   @mouseleave="selectedRow = null"
                 >
-                  <span class="category">{{ txn.category }}</span>
+                  <span class="category">
+                    {{ typeof txn.category === 'string' ? txn.category : txn.category.name }}
+                  </span>
                   <span class="desc" :title="txn.description">{{ txn.description || '(No Description)' }}</span>
                   <span :class="['amount', txn.type]">
                     {{ txn.type === 'income' ? '+ ' : '- ' }}${{ txn.amount.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
@@ -406,8 +410,12 @@ const expenseCategorySummary = computed(() => {
   const categoryMap: Record<string, number> = {}
   for (const txn of transactions.value) {
     if (txn.type === 'expense') {
-      if (!categoryMap[txn.category]) categoryMap[txn.category] = 0
-      categoryMap[txn.category] += txn.amount
+      // Use id or name as a stable key
+      const catKey = typeof txn.category === 'string'
+        ? txn.category
+        : (txn.category.id || txn.category.name)
+      if (!categoryMap[catKey]) categoryMap[catKey] = 0
+      categoryMap[catKey] += txn.amount
     }
   }
   return categoryMap
@@ -452,8 +460,13 @@ const trendSeries = computed(() => {
 const filteredTransactions = computed(() => {
   return transactions.value.filter(txn => {
     let ok = true
-    if (filter.value.category)
-      ok = ok && txn.category === filter.value.category
+    if (filter.value.category) {
+      if (typeof txn.category === 'string') {
+        ok = ok && txn.category === filter.value.category
+      } else {
+        ok = ok && (txn.category.id === filter.value.category || txn.category.name === filter.value.category)
+      }
+    }
     if (filter.value.startDate)
       ok = ok && txn.date >= filter.value.startDate
     if (filter.value.endDate)
