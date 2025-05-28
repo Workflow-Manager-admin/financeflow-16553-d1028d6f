@@ -1,14 +1,16 @@
-export type TransactionCategory =
-  | 'Groceries'
-  | 'Salary'
-  | 'Transport'
-  | 'Utilities'
-  | 'Entertainment'
-  | 'Savings'
-  | 'Shopping'
-  | 'Health'
-  | 'Other'
-  | string
+/**
+ * TransactionCategory can be basic string (legacy) or full Category object.
+ * Full Category has id, name, icon (emoji/SVG), and color.
+ */
+export interface Category {
+  id: string
+  name: string
+  icon: string // emoji or SVG string
+  color: string // HEX (e.g. #6C3EFF)
+  type: 'expense' | 'income'
+  isCustom?: boolean // true if user-defined
+}
+export type TransactionCategory = string | Category
 
 export type TransactionType = 'income' | 'expense'
 
@@ -19,6 +21,8 @@ export interface Transaction {
   amount: number
   date: string // ISO format, e.g. '2024-06-11'
   description?: string
+  // Receipt image URL if uploaded
+  receiptUrl?: string
 }
 
 /** Income-appropriate categories */
