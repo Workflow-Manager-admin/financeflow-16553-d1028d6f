@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import MainContainer from '../MainContainer.vue'
-import { nextTick } from 'vue'
 
 function wait(ms = 0) {
   // Helper for waiting DOM transitions
@@ -11,29 +10,28 @@ function wait(ms = 0) {
 describe('MainContainer', () => {
   let wrapper: ReturnType<typeof mount>
 
-  beforeEach(() => {
+  // Setup for each test (clears storage)
+  function freshMount() {
     localStorage.clear()
-    // Mount fresh each time with default mocks and restore Theme
-    wrapper = mount(MainContainer, {
+    return mount(MainContainer, {
       attachTo: document.body,
     })
-  })
+  }
+
 
   it('renders and shows onboarding banner on first load', async () => {
+    const wrapper = freshMount()
     expect(wrapper.text()).toMatch(/Welcome to FinanceFlow/i)
-    // Should be visible
     expect(wrapper.find('.onboarding-banner').exists()).toBe(true)
-    // Close banner
     await wrapper.find('.onboarding-close').trigger('click')
     expect(wrapper.find('.onboarding-banner').exists()).toBe(false)
-    // Should set localStorage marker
     expect(localStorage.getItem('financeflow-onboarded')).toBe('yes')
   })
 
   it('toggles dark/light theme', async () => {
+    const wrapper = freshMount()
     const btn = wrapper.find('button.theme-toggle')
     const getThemeLS = () => localStorage.getItem('financeflow-theme')
-    // Toggle: triggers theme change
     const prev = getThemeLS()
     await btn.trigger('click')
     const toggled = getThemeLS()
