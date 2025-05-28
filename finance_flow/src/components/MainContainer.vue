@@ -675,34 +675,7 @@ watch([savingsGoal, goalProgress], ([goal, pct]) => {
   }
 })
 
-onMounted(() => {
-  // Theme: apply from localStorage or system preference on first mount
-  const themeLocal = localStorage.getItem('financeflow-theme')
-  if (themeLocal) {
-    isDarkMode.value = themeLocal === 'dark'
-  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    isDarkMode.value = true
-  }
-  document.documentElement.classList.toggle('dark', isDarkMode.value)
-  document.body.style.backgroundColor = isDarkMode.value ? '#121216' : ''
-  // Save user preference on toggle
-  watch(isDarkMode, val => {
-    localStorage.setItem('financeflow-theme', val ? 'dark' : 'light')
-    document.body.style.backgroundColor = val ? '#121216' : ''
-  }, { immediate: true })
-
-  if (!localStorage.getItem('financeflow-onboarded')) {
-    showOnboarding.value = true
-  }
-  loadTransactions()
-  // Load savings goal from local storage
-  const storedGoal = localStorage.getItem('financeflow-savings-goal')
-  if (storedGoal && !isNaN(Number(storedGoal))) {
-    savingsGoal.value = Number(storedGoal)
-  }
-  goalInput.value = savingsGoal.value || null
-})
-
+/* --- Removed duplicate onMounted for theme toggling and initial fetch --- */
 // ---- SAVINGS GOAL FEATURE END ----
 </script>
 
