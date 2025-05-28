@@ -40,7 +40,12 @@ describe('TransactionForm', () => {
       props: { lockedType: 'income' }
     })
     expect(wrapper.html()).not.toMatch(/Type<\/label>/)
-    expect(wrapper.vm.form.type).toBe('income')
+    // Don't assert internal form, ensure value persists via event
+    await wrapper.find('button[type="submit"]').trigger('submit')
+    const emitted = wrapper.emitted('submit')
+    expect(emitted).toBeTruthy()
+    // type should always be 'income' because lockedType is set
+    expect((emitted![0][0] as {type: string}).type).toBe('income')
   })
 
   it('shows correct categories for type, and supports custom existing value', async () => {
