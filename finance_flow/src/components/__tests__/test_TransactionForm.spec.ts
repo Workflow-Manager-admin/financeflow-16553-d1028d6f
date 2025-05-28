@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TransactionForm from '../TransactionForm.vue'
 import { getCategoriesForType } from '../transaction-model'
 
 const baseTransaction = {
   id: 'xyz',
-  type: 'expense',
+  type: 'expense' as const,
   category: 'Groceries',
   amount: 44.5,
   date: '2024-06-11',
@@ -29,7 +29,7 @@ describe('TransactionForm', () => {
     await wrapper.find('button[type="submit"]').trigger('submit')
     const emitted = wrapper.emitted('submit')
     expect(emitted).toBeTruthy()
-    const data = emitted![0][0]
+    const data = emitted![0][0] as { amount: number; description: string; type: string }
     expect(data.amount).toBe(33.99)
     expect(data.description).toBe('Pizza night')
     expect(data.type).toBe('expense')
