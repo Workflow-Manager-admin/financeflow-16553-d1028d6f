@@ -12,8 +12,14 @@
     <div class="form-row">
       <label>Category</label>
       <select v-model="form.category" required>
-        <option v-for="cat in categoriesToShow" :key="cat" :value="cat">{{ cat }}</option>
-        <option v-if="!categoriesToShow.includes(form.category)" :value="form.category">{{ form.category }}</option>
+        <option v-for="cat in categoriesToShow" :key="typeof cat === 'string' ? cat : cat.id" :value="cat">
+          {{ typeof cat === 'string' ? cat : cat.name }}
+        </option>
+        <!-- Custom fallback just in case for preexisting custom value -->
+        <option v-if="form.category && categoriesToShow.findIndex(c => (typeof c === 'string' ? c === form.category : c.id === form.category.id)) === -1"
+                :value="form.category">
+          {{ typeof form.category === 'string' ? form.category : form.category.name }}
+        </option>
       </select>
     </div>
     <div class="form-row">
