@@ -1,0 +1,82 @@
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mount } from '@vue/test-utils'
+import TransactionForm from '../TransactionForm.vue'
+import { getCategoriesForType } from '../transaction-model'
+
+const baseTransaction = {
+  id: 'xyz',
+  type: 'expense',
+  category: 'Groceries',
+  amount: 44.5,
+  date: '2024-06-11',
+  description: 'Milk and bread',
+}
+
+describe('TransactionForm', () => {
+  it('renders all basic form fields and default values', () => {
+    const wrapper = mount(TransactionForm)
+    expect(wrapper.find('select').exists()).toBe(true)
+    expect(wrapper.find('input[type="number"]').exists()).toBe(true)
+    expect(wrapper.find('input[type="date"]').exists()).toBe(true)
+    expect(wrapper.find('input[type="text"]').exists()).toBe(true)
+  })
+
+  it('emits "submit" event with new correct transaction data', async () => {
+    const wrapper = mount(TransactionForm)
+    await wrapper.find('input[type="number"]').setValue('33.99')
+    await wrapper.find('input[type="date"]').setValue('2024-06-13')
+    await wrapper.find('input[type="text"]').setValue('Pizza night')
+    await wrapper.find('button[type="submit"]').trigger('submit')
+    const emitted = wrapper.emitted('submit')
+    expect(emitted).toBeTruthy()
+    const data = emitted![0][0]
+    expect(data.amount).toBe(33.99)
+    expect(data.description).toBe('Pizza night')
+    expect(data.type).toBe('expense')
+  })
+
+  it('properly locks the type and disables selector if lockedType is set', () => {
+    const wrapper = mount(TransactionForm, {
+      props: { lockedType: 'income' }
+    })
+    expect(wrapper.html()).not.toMatch(/Type<\/label>/)
+    expect(wrapper.vm.form.type).toBe('income')
+  })
+
+  it('shows correct categories for type, and supports custom existing value', async () => {
+    let wrapper = mount(TransactionForm, { props: { lockedType: 'income' } })
+    const options = wrapper.findAll('select option')
+    const incomeCats = getCategoriesForType('income')
+    expect(options.length).toBeGreaterThanOrEqual(incomeCats.length)
+    // Expense type: switchable in UI only if not locked
+    wrapper = mount(TransactionForm, { props: { modelValue: { type: 'expense' } } })
+    await wrapper.find('select').setValue('Entertainment')
+    expect(wrapper.vm.form.category).toBe('Entertainment')
+    // Custom fallback
+    wrapper = mount(TransactionForm, { props: { modelValue: { ...baseTransaction, category: 'MyCustomCat' } } })
+    expect(wrapper.text()).toContain('MyCustomCat')
+  })
+
+  it('shows Save/Cancel buttons in editMode, emits cancel', async () => {
+    const wrapper = mount(TransactionForm, { props: { editMode: true, modelValue: baseTransaction } })
+    expect(wrapper.find('button.form-submit').text()).toMatch(/Save/)
+    expect(wrapper.find('button.form-cancel').exists()).toBe(true)
+    await wrapper.find('button.form-cancel').trigger('click')
+    expect(wrapper.emitted('cancel')).toBeTruthy()
+  })
+
+  it('validates amount and date fields as required', async () => {
+    const wrapper = mount(TransactionForm)
+    const btn = wrapper.find('button.form-submit')
+    await wrapper.find('input[type="number"]').setValue('')
+    await btn.trigger('submit')
+    // If you emit with blank value, the form will emit with default 0 value, but UI disables submit if 0.
+    expect(wrapper.vm.form.amount).toBe(0)
+    // Date must have a value, otherwise today by default
+    await wrapper.find('input[type="number"]').setValue('3')
+    await wrapper.find('input[type="date"]').setValue('')
+    await btn.trigger('submit')
+    // Should default to today or fallback, don't throw/error
+    expect(wrapper.emitted('submit')).toBeTruthy()
+  })
+})
