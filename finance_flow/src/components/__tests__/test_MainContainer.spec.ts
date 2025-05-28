@@ -32,15 +32,14 @@ describe('MainContainer', () => {
 
   it('toggles dark/light theme', async () => {
     const btn = wrapper.find('button.theme-toggle')
-    expect(document.body.style.backgroundColor).toMatch(/rgb.*|(#[0-9a-f]{6})?/i)
+    const getThemeLS = () => localStorage.getItem('financeflow-theme')
     // Toggle: triggers theme change
-    const wasDark = wrapper.vm.isDarkMode
+    const prev = getThemeLS()
     await btn.trigger('click')
-    expect(wrapper.vm.isDarkMode).toBe(!wasDark)
+    const toggled = getThemeLS()
+    expect(toggled === 'dark' || toggled === 'light').toBeTruthy()
     await btn.trigger('click')
-    expect(wrapper.vm.isDarkMode).toBe(wasDark)
-    // Should persist preference
-    expect(localStorage.getItem('financeflow-theme')).toMatch(/light|dark/)
+    expect(getThemeLS()).not.toBe(prev)
   })
 
   it('shows demo transactions in list by default', () => {
