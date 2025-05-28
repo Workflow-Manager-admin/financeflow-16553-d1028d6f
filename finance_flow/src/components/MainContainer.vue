@@ -694,7 +694,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Center the percentage label within the SVG ring using SVG text alignment and styled for clarity */
+/* ... styles remain unchanged ... (as prior file) ... */
 .svg-ring-outer {
   display: flex;
   align-items: center;
