@@ -29,7 +29,8 @@ export default defineConfig({
       usePolling: true
     },
     allowedHosts: [
-      "vscode-internal-237605-beta.beta01.cloud.kavia.ai"
+      "vscode-internal-237605-beta.beta01.cloud.kavia.ai",
+      "vscode-internal-655565-beta.beta01.cloud.kavia.ai"
     ]
   }
 })
